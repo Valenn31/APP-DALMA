@@ -1,11 +1,11 @@
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
-const fs = require('fs').promises;
-const path = require('path');
+const AdminUser = require('../models/AdminUser');
 
 /**
  * AuthService - Maneja autenticación JWT y usuarios admin
  * Responsabilidad: Gestionar usuarios, tokens JWT y autenticación segura
+ * Usa MongoDB (AdminUser model) para persistencia
  */
 class AuthService {
     constructor() {
@@ -25,58 +25,49 @@ class AuthService {
         this.loginAttempts = new Map();
         this.maxLoginAttempts = 5;
         this.loginWindowMs = 15 * 60 * 1000; // 15 minutos
-        
-        // Archivo de usuarios admin (simple para evitar base de datos)
-        this.usersFile = path.join(__dirname, '../data/admin-users.json');
-        
-        // Inicializar usuario admin por defecto si no existe
-        this.initializeDefaultAdmin();
     }
 
     /**
-     * Inicializa usuario admin por defecto si no existe el archivo
+     * Inicializa usuario admin por defecto si no existe en MongoDB
+     * Debe llamarse después de que mongoose esté conectado
      */
     async initializeDefaultAdmin() {
         try {
-            // Verificar si existe el archivo de usuarios
-            await fs.access(this.usersFile);
-        } catch (error) {
-            // El archivo no existe, crear usuario admin por defecto
+            const count = await AdminUser.countDocuments();
+            if (count > 0) return;
+
             console.log('AuthService: Creando usuario admin por defecto...');
             
-            const defaultAdmin = {
+            const defaultAdmin = new AdminUser({
                 id: 1,
                 username: 'admin',
-                password: await this.hashPassword('admin123'), // Contraseña temporal
+                password: await this.hashPassword('admin123'),
                 email: 'admin@unacucharitamas.com',
                 role: 'admin',
                 active: true,
-                createdAt: new Date().toISOString(),
                 lastLogin: null
-            };
+            });
             
-            const users = [defaultAdmin];
-            
-            // Crear directorio si no existe
-            const dir = path.dirname(this.usersFile);
-            await fs.mkdir(dir, { recursive: true });
-            
-            // Guardar archivo
-            await fs.writeFile(this.usersFile, JSON.stringify(users, null, 2));
+            await defaultAdmin.save();
             
             console.log('AuthService: Usuario admin creado - username: admin, password: admin123');
             console.log('AuthService: ⚠️ CAMBIAR CONTRASEÑA INMEDIATAMENTE EN PRODUCCIÓN');
+        } catch (error) {
+            console.error('AuthService: Error al inicializar admin:', error);
         }
     }
 
     /**
-     * Carga usuarios del archivo JSON
+     * Carga usuarios desde MongoDB
      * @returns {Array} Lista de usuarios
      */
     async loadUsers() {
         try {
-            const data = await fs.readFile(this.usersFile, 'utf8');
-            return JSON.parse(data);
+            const users = await AdminUser.find().lean();
+            return users.map(u => {
+                const { _id, __v, ...clean } = u;
+                return clean;
+            });
         } catch (error) {
             console.error('AuthService: Error al cargar usuarios:', error);
             return [];
@@ -84,12 +75,18 @@ class AuthService {
     }
 
     /**
-     * Guarda usuarios en el archivo JSON
-     * @param {Array} users - Lista de usuarios
+     * Guarda/actualiza un usuario en MongoDB
+     * @param {Array} users - Lista de usuarios (compatibilidad)
      */
     async saveUsers(users) {
         try {
-            await fs.writeFile(this.usersFile, JSON.stringify(users, null, 2));
+            for (const user of users) {
+                await AdminUser.findOneAndUpdate(
+                    { id: user.id },
+                    user,
+                    { upsert: true, new: true }
+                );
+            }
         } catch (error) {
             console.error('AuthService: Error al guardar usuarios:', error);
             throw new Error('No se pudieron guardar los usuarios');

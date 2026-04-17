@@ -12,7 +12,7 @@ export class OrderService {
      * @param {Object} cartManager - Manejador del carrito
      * @param {Object} config - Configuración de la tienda (número de WhatsApp, etc.)
      */
-    sendWhatsAppOrder(cartManager, config) {
+    sendWhatsAppOrder(cartManager, config, address = '', paymentMethod = '') {
         if (!cartManager || cartManager.isEmpty()) {
             console.warn('OrderService: Carrito vacío, no se puede enviar pedido');
             return;
@@ -29,7 +29,7 @@ export class OrderService {
 
         try {
             // Formatear mensaje del pedido
-            const message = this.formatOrderMessage(cartManager, storeConfig);
+            const message = this.formatOrderMessage(cartManager, storeConfig, address, paymentMethod);
             
             // Crear URL de WhatsApp
             const whatsappUrl = this.buildWhatsAppUrl(message, whatsappNumber);
@@ -49,29 +49,46 @@ export class OrderService {
      * @param {Object} storeConfig - Configuración de la tienda
      * @returns {string} Mensaje formateado
      */
-    formatOrderMessage(cartManager, storeConfig = {}) {
+    formatOrderMessage(cartManager, storeConfig = {}, address = '', paymentMethod = '') {
         const cart = cartManager.getCart();
         const total = cartManager.getTotal();
         const storeName = storeConfig.name || this.defaultStoreName;
+        const currencySymbol = storeConfig.currencySymbol || '$';
         
-        let message = '';
+        const paymentLabels = {
+            efectivo: '💵 Efectivo',
+            transferencia: '🏦 Transferencia'
+        };
         
-        // Encabezado
-        message += this.formatHeader(storeName);
+        let lines = [];
         
-        // Lista de productos
-        message += this.formatProductList(cart);
+        lines.push(`🍫 *${storeName.toUpperCase()} - PEDIDO WEB* 🍭`);
+        lines.push('');
+        lines.push('Pedido a confirmar:');
+        lines.push('─'.repeat(30));
+        lines.push('');
         
-        // Separador
-        message += this.formatSeparator();
+        cart.forEach(item => {
+            const itemTotal = item.price * item.quantity;
+            lines.push(`🥄 *${item.quantity}x* ${item.name} — _${currencySymbol}${itemTotal.toLocaleString()}_`);
+        });
         
-        // Total
-        message += this.formatTotal(total, storeConfig.currencySymbol || '$');
+        lines.push('');
+        lines.push('─'.repeat(30));
+        lines.push(`*TOTAL: ${currencySymbol}${total.toLocaleString()}*`);
+        lines.push('');
         
-        // Mensaje de cierre
-        message += this.formatClosingMessage();
+        if (address) {
+            lines.push(`📍 *Enviar a:* ${address}`);
+        }
+        if (paymentMethod) {
+            lines.push(`💳 *Pago:* ${paymentLabels[paymentMethod] || paymentMethod}`);
+        }
         
-        return message;
+        lines.push('');
+        lines.push('Muchas gracias por elegirnos para endulzar tu momento 🥰');
+        
+        return lines.join('\n');
     }
 
     /**
@@ -79,50 +96,29 @@ export class OrderService {
      * @param {string} storeName - Nombre de la tienda
      * @returns {string} Encabezado formateado
      */
+    // Métodos legacy mantenidos por compatibilidad
     formatHeader(storeName = this.defaultStoreName) {
-        return `🍫 *${storeName.toUpperCase()} - PEDIDO WEB* 🍭\\n\\nPedido a confirmar:\\n${"_".repeat(52)}\\n\\n`;
+        return `🍫 *${storeName.toUpperCase()} - PEDIDO WEB* 🍭\n\nPedido a confirmar:\n${'─'.repeat(30)}\n\n`;
     }
 
-    /**
-     * Formatea la lista de productos del carrito
-     * @param {Array} cart - Array de items del carrito
-     * @returns {string} Lista formateada
-     */
     formatProductList(cart) {
-        if (!cart || cart.length === 0) {
-            return "No hay productos en el carrito\\n\\n";
-        }
-
+        if (!cart || cart.length === 0) return 'No hay productos en el carrito\n\n';
         return cart.map(item => {
             const itemTotal = item.price * item.quantity;
-            return `🥄 *${item.quantity}x* ${item.name}\\n   _($${itemTotal.toLocaleString()})_\\n\\n`;
+            return `🥄 *${item.quantity}x* ${item.name} — _$${itemTotal.toLocaleString()}_\n`;
         }).join('');
     }
 
-    /**
-     * Formatea el separador visual
-     * @returns {string} Separador formateado
-     */
     formatSeparator() {
-        return `${"_".repeat(52)}\\n\\n`;
+        return `\n${'─'.repeat(30)}\n`;
     }
 
-    /**
-     * Formatea el total del pedido
-     * @param {number} total - Total del pedido
-     * @param {string} currencySymbol - Símbolo de moneda
-     * @returns {string} Total formateado
-     */
     formatTotal(total, currencySymbol = '$') {
-        return `*TOTAL: ${currencySymbol}${total.toLocaleString()}*\\n\\n`;
+        return `*TOTAL: ${currencySymbol}${total.toLocaleString()}*\n\n`;
     }
 
-    /**
-     * Formatea el mensaje de cierre
-     * @returns {string} Mensaje de cierre
-     */
     formatClosingMessage() {
-        return "Muchas gracias por elegirnos para endulzar tu momento. 🥰\\n\\n";
+        return 'Muchas gracias por elegirnos para endulzar tu momento 🥰\n';
     }
 
     /**

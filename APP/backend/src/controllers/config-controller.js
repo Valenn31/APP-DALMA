@@ -44,6 +44,7 @@ class ConfigController {
                 address: storeConfig.address,
                 phone: storeConfig.phone,
                 email: storeConfig.email,
+                whatsappNumber: storeConfig.whatsappNumber,
                 socialMedia: storeConfig.socialMedia,
                 businessHours: config.business?.hours,
                 categories: config.categories,

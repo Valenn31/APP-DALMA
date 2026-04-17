@@ -185,6 +185,25 @@ export class EventHandler {
         
         const config = this.productManager.getConfig();
         
+        // Obtener dirección de envío
+        const addressInput = document.getElementById('delivery-address');
+        const address = addressInput ? addressInput.value.trim() : '';
+        
+        if (!address) {
+            this.modalManager.showToast('Ingresá tu dirección de envío', 3000);
+            if (addressInput) addressInput.focus();
+            return;
+        }
+        
+        // Obtener método de pago
+        const paymentInput = document.querySelector('input[name="payment-method"]:checked');
+        const paymentMethod = paymentInput ? paymentInput.value : '';
+        
+        if (!paymentMethod) {
+            this.modalManager.showToast('Elegí un método de pago', 3000);
+            return;
+        }
+        
         // Validar pedido antes de enviar
         const validation = this.orderService.validateOrder(this.cartManager, config);
         
@@ -194,8 +213,8 @@ export class EventHandler {
             return;
         }
 
-        // Enviar pedido
-        this.orderService.sendWhatsAppOrder(this.cartManager, config);
+        // Enviar pedido con dirección y método de pago
+        this.orderService.sendWhatsAppOrder(this.cartManager, config, address, paymentMethod);
         
         // Mostrar confirmación
         this.modalManager.showToast('¡Pedido enviado por WhatsApp!', 3000);

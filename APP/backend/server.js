@@ -2,6 +2,7 @@
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
+const mongoose = require('mongoose');
 require('dotenv').config();
 
 const app = express();
@@ -87,23 +88,47 @@ app.get('*', (req, res) => {
     res.sendFile(path.join(__dirname, '../frontend/index.html'));
 });
 
-// Iniciar servidor
-app.listen(PORT, () => {
-    console.log('🍫 =====================================');
-    console.log(`🚀 Una Cucharita Más API - Puerto ${PORT}`);
-    console.log(`📱 Entorno: ${process.env.NODE_ENV || 'development'}`);
-    console.log(`🌐 URL: http://localhost:${PORT}`);
-    console.log(`🔧 Admin: http://localhost:${PORT}/admin`);
-    console.log('🍭 =====================================');
-});
+// Conectar a MongoDB e iniciar servidor
+async function startServer() {
+    try {
+        const mongoUri = process.env.MONGODB_URI;
+        if (!mongoUri) {
+            console.error('❌ MONGODB_URI no configurado en .env');
+            process.exit(1);
+        }
+
+        await mongoose.connect(mongoUri);
+        console.log('✅ Conectado a MongoDB Atlas');
+
+        // Inicializar admin por defecto si no existe
+        const { getInstance: getAuthService } = require('./src/services/auth-service');
+        await getAuthService().initializeDefaultAdmin();
+
+        app.listen(PORT, () => {
+            console.log('🍫 =====================================');
+            console.log(`🚀 Una Cucharita Más API - Puerto ${PORT}`);
+            console.log(`📱 Entorno: ${process.env.NODE_ENV || 'development'}`);
+            console.log(`🌐 URL: http://localhost:${PORT}`);
+            console.log(`🔧 Admin: http://localhost:${PORT}/admin`);
+            console.log('🍭 =====================================');
+        });
+    } catch (error) {
+        console.error('❌ Error al conectar a MongoDB:', error.message);
+        process.exit(1);
+    }
+}
+
+startServer();
 
 // Manejar cierre graceful
-process.on('SIGINT', () => {
+process.on('SIGINT', async () => {
     console.log('\n🛑 Cerrando servidor...');
+    await mongoose.connection.close();
     process.exit(0);
 });
 
-process.on('SIGTERM', () => {
+process.on('SIGTERM', async () => {
     console.log('\n🛑 Señal SIGTERM recibida, cerrando servidor...');
+    await mongoose.connection.close();
     process.exit(0);
 });

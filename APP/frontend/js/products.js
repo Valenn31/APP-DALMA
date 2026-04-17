@@ -11,19 +11,32 @@ export class ProductManager {
     }
 
     /**
-     * Carga productos desde el archivo JSON
+     * Carga productos desde la API del backend
      * @returns {boolean} - True si se cargaron correctamente
      */
     async loadProducts() {
         try {
-            const response = await fetch('./data/products.json');
-            const data = await response.json();
+            // Cargar productos y config pública en paralelo desde la API
+            const [productsRes, storeRes] = await Promise.all([
+                fetch('/api/products'),
+                fetch('/api/config/store')
+            ]);
+
+            const productsData = await productsRes.json();
+            const storeData = await storeRes.json();
             
-            // Cargar datos
-            this.products = data.products || [];
-            this.config = data.config || {};
-            this.metadata = data.metadata || {};
-            this.categories = data.config?.categories || [];
+            this.products = productsData.success ? productsData.data : [];
+            
+            if (storeData.success) {
+                this.config = {
+                    store: storeData.data,
+                    categories: storeData.data.categories || [],
+                    stock: { trackStock: true }
+                };
+                this.categories = storeData.data.categories || [];
+            }
+            
+            this.metadata = {};
             
             console.log(`ProductManager: Cargados ${this.products.length} productos`);
             return true;
