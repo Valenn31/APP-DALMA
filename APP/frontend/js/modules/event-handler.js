@@ -1,0 +1,213 @@
+/**
+ * EventHandler - Maneja todos los eventos del DOM de manera centralizada
+ * Responsabilidad única: Capturar eventos y delegarlos a los managers apropiados
+ */
+export class EventHandler {
+    constructor(viewManager, modalManager, cartManager, orderService, productManager) {
+        this.viewManager = viewManager;
+        this.modalManager = modalManager;
+        this.cartManager = cartManager;
+        this.orderService = orderService;
+        this.productManager = productManager;
+        
+        this.setupEventListeners();
+    }
+
+    /**
+     * Configura todos los event listeners usando event delegation
+     */
+    setupEventListeners() {
+        // Event delegation principal para clicks
+        document.addEventListener('click', (e) => this.handleClick(e));
+        
+        console.log('EventHandler: Event listeners configurados');
+    }
+
+    /**
+     * Maneja todos los clicks usando data-attributes
+     * @param {Event} e - Evento de click
+     */
+    handleClick(e) {
+        // Buscar el elemento más cercano con data-action
+        const actionElement = e.target.closest('[data-action]');
+        
+        if (!actionElement) {
+            return; // No hay acción definida
+        }
+
+        // Prevenir comportamiento por defecto si es necesario
+        const { action, category, productId } = actionElement.dataset;
+
+        // Ejecutar la acción correspondiente
+        switch (action) {
+            case 'selectCategory':
+                this.handleSelectCategory(category);
+                break;
+                
+            case 'showCategories':
+                this.handleShowCategories();
+                break;
+                
+            case 'showProductDetail':
+                this.handleShowProductDetail(parseInt(productId));
+                break;
+                
+            case 'closeProductDetail':
+                this.handleCloseProductDetail();
+                break;
+                
+            case 'addToCart':
+                e.stopPropagation(); // Evitar que dispare otros eventos
+                this.handleAddToCart(parseInt(productId));
+                break;
+                
+            case 'toggleCart':
+                this.handleToggleCart();
+                break;
+                
+            case 'updateQuantity':
+                e.stopPropagation();
+                const delta = parseInt(actionElement.dataset.delta) || 0;
+                this.handleUpdateQuantity(parseInt(productId), delta);
+                break;
+                
+            case 'sendWhatsAppOrder':
+                this.handleSendWhatsAppOrder();
+                break;
+                
+            default:
+                console.warn('EventHandler: Acción no reconocida:', action);
+        }
+    }
+
+    /**
+     * Maneja la selección de una categoría
+     * @param {string} category - Categoría seleccionada
+     */
+    handleSelectCategory(category) {
+        if (!category) {
+            console.error('EventHandler: Categoría no especificada');
+            return;
+        }
+        
+        console.log('EventHandler: Seleccionando categoría:', category);
+        this.viewManager.selectCategory(category);
+    }
+
+    /**
+     * Maneja el retorno a la vista de categorías
+     */
+    handleShowCategories() {
+        console.log('EventHandler: Mostrando categorías');
+        this.viewManager.showCategories();
+    }
+
+    /**
+     * Maneja mostrar el detalle de un producto
+     * @param {number} productId - ID del producto
+     */
+    handleShowProductDetail(productId) {
+        if (!productId || isNaN(productId)) {
+            console.error('EventHandler: ID de producto inválido:', productId);
+            return;
+        }
+        
+        console.log('EventHandler: Mostrando detalle de producto:', productId);
+        this.modalManager.showProductDetail(productId);
+    }
+
+    /**
+     * Maneja el cierre del modal de producto
+     */
+    handleCloseProductDetail() {
+        console.log('EventHandler: Cerrando detalle de producto');
+        this.modalManager.closeProductDetail();
+    }
+
+    /**
+     * Maneja agregar un producto al carrito
+     * @param {number} productId - ID del producto
+     */
+    handleAddToCart(productId) {
+        if (!productId || isNaN(productId)) {
+            console.error('EventHandler: ID de producto inválido para agregar al carrito:', productId);
+            return;
+        }
+
+        const product = this.productManager.getById(productId);
+        if (!product) {
+            console.error('EventHandler: Producto no encontrado:', productId);
+            return;
+        }
+
+        console.log('EventHandler: Agregando al carrito:', product.name);
+        
+        // Agregar al carrito
+        this.cartManager.addItem(product);
+        
+        // Mostrar notificación
+        this.modalManager.showToast(`¡${product.name} agregado!`);
+    }
+
+    /**
+     * Maneja alternar la visibilidad del carrito
+     */
+    handleToggleCart() {
+        console.log('EventHandler: Alternando carrito');
+        this.modalManager.toggleCart();
+    }
+
+    /**
+     * Maneja actualizar la cantidad de un producto en el carrito
+     * @param {number} productId - ID del producto
+     * @param {number} delta - Cambio en la cantidad (+1, -1)
+     */
+    handleUpdateQuantity(productId, delta) {
+        if (!productId || isNaN(productId)) {
+            console.error('EventHandler: ID de producto inválido para actualizar cantidad:', productId);
+            return;
+        }
+
+        if (!delta || isNaN(delta)) {
+            console.error('EventHandler: Delta inválido para actualizar cantidad:', delta);
+            return;
+        }
+
+        console.log('EventHandler: Actualizando cantidad:', productId, delta);
+        this.cartManager.updateQuantity(productId, delta);
+    }
+
+    /**
+     * Maneja el envío del pedido por WhatsApp
+     */
+    handleSendWhatsAppOrder() {
+        console.log('EventHandler: Enviando pedido por WhatsApp');
+        
+        const config = this.productManager.getConfig();
+        
+        // Validar pedido antes de enviar
+        const validation = this.orderService.validateOrder(this.cartManager, config);
+        
+        if (!validation.valid) {
+            console.error('EventHandler: Pedido inválido:', validation.errors);
+            this.modalManager.showToast('Error: ' + validation.errors.join(', '), 4000);
+            return;
+        }
+
+        // Enviar pedido
+        this.orderService.sendWhatsAppOrder(this.cartManager, config);
+        
+        // Mostrar confirmación
+        this.modalManager.showToast('¡Pedido enviado por WhatsApp!', 3000);
+    }
+
+    /**
+     * Configura callbacks para la comunicación entre managers
+     */
+    setupManagerCallbacks() {
+        // Callback para agregar al carrito desde el modal de producto
+        this.modalManager.setAddToCartCallback((productId) => {
+            this.handleAddToCart(productId);
+        });
+    }
+}

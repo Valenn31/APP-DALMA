@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel Administrativo - Una Cucharita Más</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* Personalización del tema */
+        .bg-primary { background-color: #7d8c56; }
+        .text-primary { color: #7d8c56; }
+        .border-primary { border-color: #7d8c56; }
+        .bg-chocolate { background-color: #4a3b2a; }
+        .text-chocolate { color: #4a3b2a; }
+        
+        /* Animaciones personalizadas */
+        .fade-in {
+            animation: fadeIn 0.5s ease-in-out;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .slide-in {
+            animation: slideIn 0.3s ease-out;
+        }
+        
+        .slide-out {
+            animation: slideOut 0.3s ease-in;
+        }
+        
+        @keyframes slideIn {
+            from { transform: translateX(-100%); }
+            to { transform: translateX(0); }
+        }
+        
+        @keyframes slideOut {
+            from { transform: translateX(0); }
+            to { transform: translateX(-100%); }
+        }
+        
+        /* Estilos responsive para el sidebar */
+        .sidebar-item:hover {
+            background-color: rgba(125, 140, 86, 0.1);
+        }
+        
+        .sidebar-item.active {
+            background-color: rgba(125, 140, 86, 0.2);
+            border-right: 3px solid #7d8c56;
+        }
+        
+        /* Sidebar móvil overlay */
+        .sidebar-mobile {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 100vh;
+            width: 280px;
+            z-index: 50;
+            transform: translateX(-100%);
+            transition: transform 0.3s ease-in-out;
+        }
+        
+        .sidebar-mobile.open {
+            transform: translateX(0);
+        }
+        
+        .sidebar-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 40;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease-in-out, visibility 0.3s ease-in-out;
+        }
+        
+        .sidebar-overlay.open {
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        /* Botones más grandes para móvil */
+        @media (max-width: 640px) {
+            .touch-button {
+                min-height: 48px;
+                padding: 12px 16px;
+            }
+            
+            .card-mobile {
+                margin: 8px;
+                padding: 16px;
+            }
+        }
+        
+        /* Loader personalizado */
+        .loader {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #7d8c56;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        /* Scrollbar personalizada para móvil */
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 4px;
+        }
+        
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+        
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #7d8c56;
+            border-radius: 2px;
+        }
+        
+        /* Reset responsive para desktop */
+        @media (min-width: 1024px) {
+            .sidebar-mobile {
+                position: relative !important;
+                transform: none !important;
+                width: 16rem !important;
+            }
+        }
+    </style>
+</head>
+<body class="bg-gray-50 font-sans">
+    
+    <!-- Login Screen -->
+    <div id="loginScreen" class="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary to-chocolate px-4">
+        <div class="bg-white p-6 sm:p-8 rounded-2xl shadow-2xl w-full max-w-md fade-in">
+            <div class="text-center mb-8">
+                <div class="bg-primary w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <i class="fas fa-birthday-cake text-white text-2xl"></i>
+                </div>
+                <h1 class="text-3xl font-bold text-chocolate">Panel Admin</h1>
+                <p class="text-gray-600 mt-2">Una Cucharita Más</p>
+            </div>
+            
+            <form id="loginForm" class="space-y-6">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Usuario</label>
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <i class="fas fa-user text-gray-400"></i>
+                        </div>
+                        <input 
+                            type="text" 
+                            id="username" 
+                            name="username"
+                            class="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary"
+                            placeholder="admin"
+                            required
+                        >
+                    </div>
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Contraseña</label>
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <i class="fas fa-lock text-gray-400"></i>
+                        </div>
+                        <input 
+                            type="password" 
+                            id="password" 
+                            name="password"
+                            class="block w-full pl-10 pr-12 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary"
+                            placeholder="••••••••"
+                            required
+                        >
+                        <button 
+                            type="button" 
+                            id="togglePassword"
+                            class="absolute inset-y-0 right-0 pr-3 flex items-center"
+                        >
+                            <i class="fas fa-eye text-gray-400 hover:text-gray-600"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <button 
+                    type="submit" 
+                    id="loginButton"
+                    class="w-full bg-primary text-white py-3 px-4 rounded-xl font-medium hover:bg-opacity-90 transition-colors flex items-center justify-center space-x-2"
+                >
+                    <span id="loginButtonText">Iniciar Sesión</span>
+                    <div id="loginLoader" class="loader hidden"></div>
+                </button>
+            </form>
+            
+            <!-- Error Message -->
+            <div id="loginError" class="mt-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded-lg hidden">
+                <i class="fas fa-exclamation-triangle mr-2"></i>
+                <span id="loginErrorText">Error de autenticación</span>
+            </div>
+            
+
+        </div>
+    </div>
+
+    <!-- Main Admin Panel -->
+    <div id="adminPanel" class="hidden min-h-screen bg-gray-50">
+        
+        <!-- Top Navigation Bar -->
+        <nav class="bg-white shadow-lg border-b border-gray-200">
+            <div class="px-4 sm:px-6 py-3 sm:py-4">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center space-x-2 sm:space-x-4">
+                        <button id="sidebarToggle" class="text-gray-500 hover:text-gray-700 lg:hidden p-2 touch-button">
+                            <i class="fas fa-bars text-xl"></i>
+                        </button>
+                        <div class="flex items-center space-x-2 sm:space-x-3">
+                            <div class="bg-primary w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center">
+                                <i class="fas fa-birthday-cake text-white text-sm sm:text-base"></i>
+                            </div>
+                            <div class="hidden sm:block">
+                                <h1 class="text-lg sm:text-xl font-bold text-chocolate">Una Cucharita Más</h1>
+                                <p class="text-xs sm:text-sm text-gray-600">Panel Administrativo</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="flex items-center space-x-2 sm:space-x-4">
+                        <!-- Notifications -->
+                        <button class="relative text-gray-500 hover:text-gray-700 p-2 touch-button">
+                            <i class="fas fa-bell text-lg sm:text-xl"></i>
+                            <span id="notificationBadge" class="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-4 w-4 sm:h-5 sm:w-5 flex items-center justify-center hidden">0</span>
+                        </button>
+                        
+                        <!-- User Menu -->
+                        <div class="relative">
+                            <button id="userMenuButton" class="flex items-center space-x-1 sm:space-x-2 text-gray-700 hover:text-gray-900 touch-button">
+                                <div class="w-7 h-7 sm:w-8 sm:h-8 bg-gray-300 rounded-full flex items-center justify-center">
+                                    <i class="fas fa-user text-xs sm:text-sm"></i>
+                                </div>
+                                <span id="userDisplayName" class="font-medium text-sm sm:text-base hidden sm:inline">Admin</span>
+                                <i class="fas fa-chevron-down text-xs"></i>
+                            </button>
+                            
+                            <div id="userDropdown" class="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 hidden z-50">
+                                <div class="py-1">
+                                    <button class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                        <i class="fas fa-user-cog mr-2"></i>
+                                        Mi Perfil
+                                    </button>
+                                    <button id="changePasswordBtn" class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                        <i class="fas fa-key mr-2"></i>
+                                        Cambiar Contraseña
+                                    </button>
+                                    <hr class="my-1">
+                                    <button id="logoutButton" class="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50">
+                                        <i class="fas fa-sign-out-alt mr-2"></i>
+                                        Cerrar Sesión
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Sidebar Overlay para móvil -->
+        <div id="sidebarOverlay" class="sidebar-overlay lg:hidden"></div>
+        
+        <div class="flex">
+            <!-- Sidebar -->
+            <aside id="sidebar" class="w-64 bg-white shadow-lg min-h-screen lg:relative lg:block sidebar-mobile lg:sidebar-mobile-reset custom-scrollbar">
+                <div class="p-4 sm:p-6">
+                    <!-- Cerrar botón para móvil -->
+                    <div class="flex justify-between items-center mb-4 lg:hidden">
+                        <h2 class="text-lg font-bold text-chocolate">Menú</h2>
+                        <button id="sidebarClose" class="text-gray-500 hover:text-gray-700 p-2">
+                            <i class="fas fa-times text-xl"></i>
+                        </button>
+                    </div>
+                    <nav class="space-y-1 sm:space-y-2">
+                        <!-- Dashboard -->
+                        <button class="sidebar-item w-full text-left px-3 py-4 sm:px-4 sm:py-3 rounded-lg transition-colors flex items-center space-x-3 touch-button" data-section="dashboard">
+                            <i class="fas fa-tachometer-alt w-5 text-center"></i>
+                            <span class="text-sm sm:text-base">Dashboard</span>
+                        </button>
+                        
+                        <!-- Products -->
+                        <button class="sidebar-item w-full text-left px-3 py-4 sm:px-4 sm:py-3 rounded-lg transition-colors flex items-center space-x-3 touch-button" data-section="products">
+                            <i class="fas fa-birthday-cake w-5 text-center"></i>
+                            <span class="text-sm sm:text-base">Productos</span>
+                        </button>
+                        
+                        <!-- Stock -->
+                        <button class="sidebar-item w-full text-left px-3 py-4 sm:px-4 sm:py-3 rounded-lg transition-colors flex items-center space-x-3 touch-button" data-section="stock">
+                            <i class="fas fa-boxes w-5 text-center"></i>
+                            <span class="text-sm sm:text-base">Inventario</span>
+                        </button>
+                        
+                        <!-- Orders (futuro) -->
+                        <button class="sidebar-item w-full text-left px-3 py-4 sm:px-4 sm:py-3 rounded-lg transition-colors flex items-center space-x-3 opacity-50 touch-button" disabled>
+                            <i class="fas fa-shopping-cart w-5 text-center"></i>
+                            <span class="text-sm sm:text-base">Pedidos</span>
+                            <span class="text-xs bg-gray-200 px-1 sm:px-2 py-1 rounded ml-auto">Próximo</span>
+                        </button>
+                        
+                        <!-- Configuration -->
+                        <button class="sidebar-item w-full text-left px-3 py-4 sm:px-4 sm:py-3 rounded-lg transition-colors flex items-center space-x-3 touch-button" data-section="config">
+                            <i class="fas fa-cog w-5 text-center"></i>
+                            <span class="text-sm sm:text-base">Configuración</span>
+                        </button>
+                        
+                        <!-- Analytics (futuro) -->
+                        <button class="sidebar-item w-full text-left px-3 py-4 sm:px-4 sm:py-3 rounded-lg transition-colors flex items-center space-x-3 opacity-50 touch-button" disabled>
+                            <i class="fas fa-chart-line w-5 text-center"></i>
+                            <span class="text-sm sm:text-base">Analíticas</span>
+                            <span class="text-xs bg-gray-200 px-1 sm:px-2 py-1 rounded ml-auto">Próximo</span>
+                        </button>
+                    </nav>
+                </div>
+            </aside>
+
+            <!-- Main Content -->
+            <main class="flex-1 p-3 sm:p-6 lg:ml-0">
+                <div id="mainContent" class="fade-in max-w-full overflow-x-hidden">
+                    <!-- Content will be loaded here dynamically -->
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- Modals and Components will be injected here -->
+    <div id="modalsContainer"></div>
+    
+    <!-- Global Notification Toast -->
+    <div id="notificationToast" class="fixed top-4 right-4 max-w-sm bg-white border border-gray-200 rounded-lg shadow-lg hidden z-50">
+        <div class="p-4">
+            <div class="flex items-start">
+                <div id="toastIcon" class="flex-shrink-0 w-6 h-6 rounded-full mr-3 flex items-center justify-center">
+                    <i class="fas fa-check text-sm"></i>
+                </div>
+                <div class="flex-1">
+                    <p id="toastTitle" class="font-medium text-gray-900">Notificación</p>
+                    <p id="toastMessage" class="mt-1 text-sm text-gray-500">Mensaje de la notificación</p>
+                </div>
+                <button id="toastClose" class="flex-shrink-0 ml-4 text-gray-400 hover:text-gray-600">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script type="module" src="./js/admin-app.js"></script>
+</body>
+</html>

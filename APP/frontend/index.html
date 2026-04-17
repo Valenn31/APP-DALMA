@@ -11,7 +11,7 @@
 <body class="min-h-screen pb-10">
 
     <!-- Botón Flotante del Carrito (Reemplaza al del Header) -->
-    <button onclick="toggleCart()" class="floating-cart fixed top-6 right-6 z-50 bg-amber-900 text-white p-4 rounded-2xl active:scale-90 transition-all">
+    <button data-action="toggleCart" class="floating-cart fixed top-6 right-6 z-50 bg-amber-900 text-white p-4 rounded-2xl active:scale-90 transition-all cursor-pointer">
         <i class="fa-solid fa-cart-shopping text-xl"></i>
         <span id="cart-count" class="absolute -top-1 -right-1 bg-verde text-white text-[10px] font-bold h-5 w-5 rounded-full flex items-center justify-center border-2 border-white hidden">0</span>
     </button>
@@ -31,7 +31,7 @@
 
         <div class="grid grid-cols-1 gap-6">
             <!-- Card Chocolates -->
-            <div onclick="selectCategory('chocolates')" class="category-card relative h-60 rounded-[40px] overflow-hidden shadow-lg border-4 border-white">
+            <div data-action="selectCategory" data-category="chocolates" class="category-card relative h-60 rounded-[40px] overflow-hidden shadow-lg border-4 border-white cursor-pointer">
                 <img src="https://images.unsplash.com/photo-1548907040-4baa42d10919?auto=format&fit=crop&q=80&w=800" class="absolute inset-0 w-full h-full object-cover">
                 <div class="absolute inset-0 bg-gradient-to-t from-chocolate/90 via-chocolate/20 to-transparent"></div>
                 <div class="absolute bottom-6 left-8 text-white">
@@ -40,7 +40,7 @@
                 </div>
             </div>
             <!-- Card Postres -->
-            <div onclick="selectCategory('postres')" class="category-card relative h-60 rounded-[40px] overflow-hidden shadow-lg border-4 border-white">
+            <div data-action="selectCategory" data-category="postres" class="category-card relative h-60 rounded-[40px] overflow-hidden shadow-lg border-4 border-white cursor-pointer">
                 <img src="https://images.unsplash.com/photo-1551024506-0bccd828d307?auto=format&fit=crop&q=80&w=800" class="absolute inset-0 w-full h-full object-cover">
                 <div class="absolute inset-0 bg-gradient-to-t from-chocolate/90 via-chocolate/20 to-transparent"></div>
                 <div class="absolute bottom-6 left-8 text-white">
@@ -56,7 +56,7 @@
     <section id="products-view" class="hidden animate-content">
         <!-- Header de productos sticky desde arriba -->
         <div class="px-6 pt-10 pb-1 flex items-center justify-center sticky top-0 bg-[#f2e9dc]/95 backdrop-blur-md z-30 relative">
-            <button onclick="showCategories()" class="absolute left-6 bg-white text-chocolate px-5 py-3 rounded-2xl font-bold flex items-center gap-2 border border-[#e5d9c8] text-sm active:scale-95 transition-all shadow-sm">
+            <button data-action="showCategories" class="absolute left-6 bg-white text-chocolate px-5 py-3 rounded-2xl font-bold flex items-center gap-2 border border-[#e5d9c8] text-sm active:scale-95 transition-all shadow-sm cursor-pointer">
                 <i class="fa-solid fa-chevron-left text-xs"></i> Inicio
             </button>
             <h2 id="current-category-title" class="text-xl font-black text-chocolate capitalize">Postres</h2>
@@ -69,7 +69,7 @@
 
     <!-- Modal del Carrito -->
     <div id="cart-modal" class="fixed inset-0 z-[60] hidden">
-        <div class="absolute inset-0 bg-chocolate/40 backdrop-blur-sm" onclick="toggleCart()"></div>
+        <div class="absolute inset-0 bg-chocolate/40 backdrop-blur-sm cursor-pointer" data-action="toggleCart"></div>
         <div class="absolute bottom-0 left-0 right-0 h-[85vh] bg-white rounded-t-[50px] shadow-2xl flex flex-col translate-y-full transition-transform duration-500" id="cart-sheet">
             <div class="w-12 h-1.5 bg-[#e5d9c8] rounded-full mx-auto mt-4 mb-2"></div>
 
@@ -78,7 +78,7 @@
                     <h2 class="text-2xl font-black text-chocolate leading-none">Tu pedido</h2>
                     <p class="text-gray-400 text-xs mt-2 uppercase tracking-widest">Una cucharita más</p>
                 </div>
-                <button onclick="toggleCart()" class="bg-[#f2e9dc] p-3 rounded-2xl text-chocolate active:rotate-90 transition-transform">
+                <button data-action="toggleCart" class="bg-[#f2e9dc] p-3 rounded-2xl text-chocolate active:rotate-90 transition-transform cursor-pointer">
                     <i class="fa-solid fa-xmark text-xl"></i>
                 </button>
             </div>
@@ -96,7 +96,7 @@
                     <span class="text-gray-400 font-bold uppercase tracking-widest text-[10px]">Total de hoy</span>
                     <span id="cart-total" class="text-3xl font-black text-chocolate">$0</span>
                 </div>
-                <button onclick="sendWhatsAppOrder()" class="btn-confirm w-full text-white font-bold py-5 rounded-[28px] flex items-center justify-center gap-4 active:scale-95 transition-all text-lg">
+                <button data-action="sendWhatsAppOrder" class="btn-confirm w-full text-white font-bold py-5 rounded-[28px] flex items-center justify-center gap-4 active:scale-95 transition-all text-lg cursor-pointer">
                     <i class="fa-brands fa-whatsapp text-2xl"></i>
                     Confirmar Pedido
                 </button>
@@ -106,12 +106,12 @@
 
     <!-- Modal de Detalle del Producto -->
     <div id="product-detail-modal" class="fixed inset-0 z-[70] hidden">
-        <div class="absolute inset-0 bg-chocolate/50 backdrop-blur-sm" onclick="closeProductDetail()"></div>
+        <div class="absolute inset-0 bg-chocolate/50 backdrop-blur-sm cursor-pointer" data-action="closeProductDetail"></div>
         <div class="absolute top-[15%] bottom-[15%] left-[10%] right-[10%] bg-white rounded-[40px] shadow-2xl flex flex-col overflow-hidden translate-y-full transition-transform duration-500" id="product-detail-sheet">
             <!-- Imagen del producto -->
             <div class="relative h-64 overflow-hidden">
                 <img id="product-detail-img" src="" class="w-full h-full object-cover" alt="">
-                <button onclick="closeProductDetail()" class="absolute top-6 right-6 bg-white/80 backdrop-blur w-12 h-12 rounded-2xl text-chocolate active:rotate-90 transition-transform shadow-lg flex items-center justify-center">
+                <button data-action="closeProductDetail" class="absolute top-6 right-6 bg-white/80 backdrop-blur w-12 h-12 rounded-2xl text-chocolate active:rotate-90 transition-transform shadow-lg flex items-center justify-center cursor-pointer">
                     <i class="fa-solid fa-xmark text-xl"></i>
                 </button>
             </div>
@@ -128,7 +128,7 @@
                 </div>
                 
                 <!-- Botón agregar al carrito -->
-                <button id="product-detail-add-btn" onclick="" class="bg-[#7d8c56] text-white font-bold py-5 rounded-[28px] flex items-center justify-center gap-4 active:scale-95 transition-all text-lg shadow-lg">
+                <button id="product-detail-add-btn" class="bg-[#7d8c56] text-white font-bold py-5 rounded-[28px] flex items-center justify-center gap-4 active:scale-95 transition-all text-lg shadow-lg cursor-pointer">
                     <i class="fa-solid fa-plus text-xl"></i>
                     Agregar al Carrito
                 </button>

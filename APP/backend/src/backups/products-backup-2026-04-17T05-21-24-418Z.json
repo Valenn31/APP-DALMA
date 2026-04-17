@@ -8,7 +8,7 @@
       "created": "2026-04-01T00:00:00.000Z",
       "environment": "production"
     },
-    "lastUpdate": "2026-04-17T05:24:48.093Z"
+    "lastUpdate": "2026-04-17T05:21:11.894Z"
   },
   "config": {
     "store": {
@@ -70,7 +70,7 @@
       "category": "postres",
       "description": "Brownie húmedo, dulce de leche y mucho merengue.",
       "image": "https://images.unsplash.com/photo-1578985545062-69928b1d9587?auto=format&fit=crop&q=80&w=400",
-      "stock": 4,
+      "stock": 8,
       "active": true,
       "featured": true,
       "tags": [
@@ -89,7 +89,7 @@
         "eggs"
       ],
       "createdAt": "2026-04-01T10:00:00.000Z",
-      "updatedAt": "2026-04-17T05:24:48.090Z"
+      "updatedAt": "2026-04-17T05:07:25.687Z"
     },
     {
       "id": 2,

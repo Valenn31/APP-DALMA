@@ -1,41 +1,109 @@
-// server.js - Punto de entrada del backend
+// server.js - Servidor API REST para Una Cucharita Más
 const express = require('express');
 const cors = require('cors');
+const path = require('path');
 require('dotenv').config();
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Middlewares
+// Middlewares globales
 app.use(cors({
-    origin: process.env.FRONTEND_URL || 'http://localhost:3000',
-    credentials: true
+    origin: process.env.FRONTEND_URL || ['http://localhost:3000', 'http://127.0.0.1:5500'],
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS']
 }));
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
 
-// Rutas básicas (implementar después)
+app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+
+// Logging middleware
+app.use((req, res, next) => {
+    const timestamp = new Date().toISOString();
+    console.log(`${timestamp} - ${req.method} ${req.url}`);
+    next();
+});
+
+// Servir archivos estáticos del frontend
+app.use(express.static(path.join(__dirname, '../frontend')));
+
+// Importar rutas
+const productRoutes = require('./src/routes/products');
+const configRoutes = require('./src/routes/config');
+const authRoutes = require('./src/routes/auth');
+
+// Rutas de la API
+app.use('/api/auth', authRoutes);
+app.use('/api/products', productRoutes);
+app.use('/api/config', configRoutes);
+
+// Ruta de salud básica
 app.get('/api/health', (req, res) => {
-    res.json({ status: 'OK', message: 'Backend funcionando correctamente' });
+    res.json({ 
+        success: true,
+        status: 'OK', 
+        message: 'Backend funcionando correctamente',
+        version: '1.0.0',
+        timestamp: new Date().toISOString()
+    });
 });
 
-// Rutas de productos (pendientes de implementar)
-// app.use('/api/products', require('./src/routes/products'));
-// app.use('/api/config', require('./src/routes/config'));
-// app.use('/api/orders', require('./src/routes/orders'));
-
-// Manejo de errores
+// Middleware de manejo de errores
 app.use((err, req, res, next) => {
-    console.error(err.stack);
-    res.status(500).json({ error: 'Algo salió mal!' });
+    console.error('Error no manejado:', err);
+    
+    // Error de JSON malformado
+    if (err instanceof SyntaxError && err.status === 400 && 'body' in err) {
+        return res.status(400).json({
+            success: false,
+            error: 'JSON malformado',
+            message: 'Por favor verifica la sintaxis del JSON enviado'
+        });
+    }
+    
+    // Error genérico
+    res.status(500).json({
+        success: false,
+        error: 'Error interno del servidor',
+        message: process.env.NODE_ENV === 'development' ? err.message : 'Algo salió mal'
+    });
 });
 
-// Ruta 404
-app.use('*', (req, res) => {
-    res.status(404).json({ error: 'Ruta no encontrada' });
+// Ruta 404 para APIs
+app.use('/api/*', (req, res) => {
+    res.status(404).json({ 
+        success: false,
+        error: 'Endpoint no encontrado'
+    });
 });
 
+// Rutas para páginas del frontend (después de API routes)
+app.get('/admin', (req, res) => {
+    res.sendFile(path.join(__dirname, '../frontend/admin.html'));
+});
+
+// SPA fallback - todas las demás rutas sirven index.html
+app.get('*', (req, res) => {
+    res.sendFile(path.join(__dirname, '../frontend/index.html'));
+});
+
+// Iniciar servidor
 app.listen(PORT, () => {
-    console.log(`🚀 Servidor corriendo en puerto ${PORT}`);
-    console.log(`📱 Frontend URL: ${process.env.FRONTEND_URL}`);
+    console.log('🍫 =====================================');
+    console.log(`🚀 Una Cucharita Más API - Puerto ${PORT}`);
+    console.log(`📱 Entorno: ${process.env.NODE_ENV || 'development'}`);
+    console.log(`🌐 URL: http://localhost:${PORT}`);
+    console.log(`🔧 Admin: http://localhost:${PORT}/admin`);
+    console.log('🍭 =====================================');
+});
+
+// Manejar cierre graceful
+process.on('SIGINT', () => {
+    console.log('\n🛑 Cerrando servidor...');
+    process.exit(0);
+});
+
+process.on('SIGTERM', () => {
+    console.log('\n🛑 Señal SIGTERM recibida, cerrando servidor...');
+    process.exit(0);
 });

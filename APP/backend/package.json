@@ -9,16 +9,21 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "dependencies": {
-    "express": "^4.19.2",
+    "bcryptjs": "^3.0.3",
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",
-    "pg": "^8.11.5",
-    "mysql2": "^3.9.7"
+    "express": "^4.19.2",
+    "jsonwebtoken": "^9.0.3"
   },
   "devDependencies": {
     "nodemon": "^3.1.0"
   },
-  "keywords": ["api", "products", "catalog", "whatsapp"],
+  "keywords": [
+    "api",
+    "products",
+    "catalog",
+    "whatsapp"
+  ],
   "author": "Tu nombre",
   "license": "MIT",
   "engines": {
