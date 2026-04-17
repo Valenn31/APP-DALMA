@@ -33,15 +33,7 @@ export class UIManager {
      * Inicializa el UIManager y sus componentes
      */
     initialize() {
-        console.log('UIManager: Inicializando componentes');
-        
-        // Configurar callbacks entre managers
         this.setupManagerCallbacks();
-        
-        // Ya no necesitamos exponer métodos globales - todo usa event delegation
-        console.log('UIManager: Event delegation configurado correctamente');
-        
-        console.log('UIManager: Inicialización completa');
     }
 
     /**
@@ -93,22 +85,10 @@ export class UIManager {
      * Limpia recursos y event listeners
      */
     cleanup() {
-        console.log('UIManager: Limpiando recursos');
-        
-        // Los event listeners se limpian automáticamente con event delegation
-        console.log('UIManager: Cleanup completo');
     }
 
-    /**
-     * Refresca toda la interfaz
-     */
     refresh() {
-        console.log('UIManager: Refrescando interfaz');
-        
-        // Refrescar vista actual
         this.viewManager.refresh();
-        
-        // Actualizar carrito
         this.modalManager.updateCartUI();
     }
 }

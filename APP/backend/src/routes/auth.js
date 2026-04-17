@@ -27,6 +27,5 @@ router.put('/change-password', (req, res) => authController.changePassword(req, 
 router.use(requireAdmin); // Todas las rutas siguientes requieren rol admin
 
 router.get('/stats', (req, res) => authController.getAuthStats(req, res));
-router.get('/test', (req, res) => authController.testAuth(req, res));
 
 module.exports = router;

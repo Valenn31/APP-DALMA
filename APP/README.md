@@ -1,103 +1,66 @@
-# Una Cucharita Más - Aplicación Completa
+# Una Cucharita Más
 
-Aplicación web de catálogo para productos artesanales con carrito de compras y integración con WhatsApp.
+Catálogo web de productos artesanales con carrito de compras, checkout por WhatsApp y panel administrativo.
 
-## Arquitectura del Proyecto
+## Stack
+
+- **Frontend**: HTML5, Tailwind CSS (CDN), JavaScript ES6+ (módulos)
+- **Backend**: Node.js, Express, Mongoose
+- **Base de datos**: MongoDB Atlas (M0 free tier)
+
+## Estructura
 
 ```
 APP/
-├── frontend/          # Aplicación cliente (Vercel)
-│   ├── index.html
-│   ├── css/
-│   ├── js/
-│   ├── data/         # Datos temporales (desarrollo)
-│   └── assets/
-└── backend/          # API REST (Railway)
-    ├── src/
-    ├── package.json
-    └── server.js
+├── frontend/
+│   ├── index.html          # Catálogo público
+│   ├── admin.html          # Panel administrativo
+│   ├── css/                # Estilos
+│   ├── js/                 # Módulos del catálogo
+│   │   ├── admin/          # Módulos del panel admin
+│   │   └── modules/        # UI, eventos, pedidos
+│   └── assets/images/      # Imágenes de productos
+├── backend/
+│   ├── server.js           # Punto de entrada
+│   ├── seed.js             # Inicializar base de datos
+│   └── src/
+│       ├── controllers/    # auth, products, config
+│       ├── models/         # Product, AdminUser, Config
+│       ├── routes/         # Rutas de la API
+│       ├── middleware/      # Auth JWT
+│       └── services/       # Data y auth services
+└── README.md
 ```
 
-## Frontend (Vercel)
-- **Tecnologías**: HTML5, CSS3, JavaScript ES6+, Tailwind CSS
-- **Despliegue**: Vercel
-- **Características**: SPA con carrito, integración WhatsApp
+## Instalación
 
-## Backend (Railway) 
-- **Tecnologías**: Node.js, Express, PostgreSQL/MySQL
-- **Despliegue**: Railway
-- **Características**: API REST, gestión de productos y pedidos
-
-## Desarrollo Local
-1. **Frontend**: Abrir `frontend/index.html` en navegador
-2. **Backend**: Cuando esté implementado, `npm run dev`
-
-## Producción
-- Frontend conectará al backend vía variables de entorno
-- Base de datos en Railway
-- CORS configurado entre dominios
-
-## Arquitectura Modular
-
-### **app.js** - Punto de Entrada
-- Inicializa la aplicación
-- Coordina los diferentes módulos
-- Maneja el ciclo de vida de la aplicación
-
-### **products.js** - Gestión de Productos
-- Carga productos desde JSON
-- Filtrado por categorías
-- Búsqueda por ID
-- Gestión de configuración
-
-### **cart.js** - Gestión del Carrito
-- Agregar/quitar productos
-- Actualizar cantidades
-- Calcular totales
-- Callbacks para actualizar UI
-
-### **ui.js** - Interfaz de Usuario
-- Renderizado de productos
-- Gestión del carrito visual
-- Navegación entre vistas
-- Toast notifications
-- Integración con WhatsApp
-
-## Características
-
-✅ **Modularidad**: Código separado por responsabilidades  
-✅ **Escalabilidad**: Fácil agregar nuevas funcionalidades  
-✅ **Mantenibilidad**: Cada módulo independiente  
-✅ **Configurabilidad**: Datos externos en JSON  
-✅ **Responsive**: Diseño adaptativo para móviles  
-
-## Configuración
-
-Para agregar productos, edita `data/products.json`:
-
-```json
-{
-  "products": [
-    {
-      "id": 1,
-      "name": "Nombre del producto",
-      "price": 1000,
-      "category": "categoria",
-      "desc": "Descripción",
-      "img": "URL de imagen"
-    }
-  ],
-  "config": {
-    "whatsappNumber": "5493471671286"
-  }
-}
+```bash
+cd backend
+npm install
+cp .env.example .env   # Configurar MONGODB_URI y JWT_SECRET
+node seed.js           # Cargar datos iniciales
+node server.js         # Iniciar servidor en :3000
 ```
 
-## Uso
+## API
 
-1. Abre `index.html` en un navegador
-2. Selecciona una categoría (Chocolates/Postres)
-3. Agrega productos al carrito
+| Método | Ruta | Descripción |
+|--------|------|-------------|
+| GET | /api/products | Productos activos |
+| GET | /api/config/store | Config pública (nombre, WhatsApp, categorías) |
+| POST | /api/auth/login | Login admin |
+| GET | /api/products/stats | Estadísticas (auth) |
+| PUT | /api/products/:id | Editar producto (auth) |
+| PUT | /api/config | Editar configuración (auth) |
+
+## Funcionalidades
+
+- Catálogo por categorías con carrito
+- Dirección de envío y método de pago en checkout
+- Pedido formateado vía WhatsApp
+- Panel admin con login JWT
+- Gestión de productos (CRUD, stock, imágenes)
+- MongoDB Atlas para persistencia en deploy
 4. Confirma pedido vía WhatsApp
 
 ## Tecnologías

@@ -36,8 +36,6 @@ export class OrderService {
             
             // Abrir WhatsApp
             window.open(whatsappUrl, '_blank');
-            
-            console.log('OrderService: Pedido enviado por WhatsApp');
         } catch (error) {
             console.error('OrderService: Error al enviar pedido', error);
         }
@@ -89,36 +87,6 @@ export class OrderService {
         lines.push('Muchas gracias por elegirnos para endulzar tu momento 🥰');
         
         return lines.join('\n');
-    }
-
-    /**
-     * Formatea el encabezado del pedido
-     * @param {string} storeName - Nombre de la tienda
-     * @returns {string} Encabezado formateado
-     */
-    // Métodos legacy mantenidos por compatibilidad
-    formatHeader(storeName = this.defaultStoreName) {
-        return `🍫 *${storeName.toUpperCase()} - PEDIDO WEB* 🍭\n\nPedido a confirmar:\n${'─'.repeat(30)}\n\n`;
-    }
-
-    formatProductList(cart) {
-        if (!cart || cart.length === 0) return 'No hay productos en el carrito\n\n';
-        return cart.map(item => {
-            const itemTotal = item.price * item.quantity;
-            return `🥄 *${item.quantity}x* ${item.name} — _$${itemTotal.toLocaleString()}_\n`;
-        }).join('');
-    }
-
-    formatSeparator() {
-        return `\n${'─'.repeat(30)}\n`;
-    }
-
-    formatTotal(total, currencySymbol = '$') {
-        return `*TOTAL: ${currencySymbol}${total.toLocaleString()}*\n\n`;
-    }
-
-    formatClosingMessage() {
-        return 'Muchas gracias por elegirnos para endulzar tu momento 🥰\n';
     }
 
     /**
