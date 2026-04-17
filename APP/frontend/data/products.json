@@ -1,0 +1,40 @@
+{
+    "products": [
+        {
+            "id": 5,
+            "name": "Chocotorta Clásica",
+            "price": 7800,
+            "category": "postres",
+            "desc": "Capas de galletitas de chocolate con dulce de leche y crema.",
+            "img": "./assets/images/chocotorta.jpeg"
+        },
+        {
+            "id": 6,
+            "name": "Postre de Oreo",
+            "price": 6500,
+            "category": "postres",
+            "desc": "Cremoso postre con galletitas Oreo trituradas y crema batida.",
+            "img": "./assets/images/oreo.jpeg"
+        },
+        {
+            "id": 7,
+            "name": "Delicia de Nutella",
+            "price": 8900,
+            "category": "postres",
+            "desc": "Irresistible postre con capas de Nutella y bizcochuelo suave.",
+            "img": "./assets/images/nutella.jpeg"
+        },
+        {
+            "id": 8,
+            "name": "Choco Oreo Especial",
+            "price": 7200,
+            "category": "postres",
+            "desc": "Fusión perfecta de chocolate y Oreo en un postre cremoso.",
+            "img": "./assets/images/chocooreo.jpeg"
+        }
+
+    ],
+    "config": {
+        "whatsappNumber": "5493471671286"
+    }
+}
