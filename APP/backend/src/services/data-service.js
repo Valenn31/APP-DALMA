@@ -49,8 +49,6 @@ class DataService {
 
         const product = new Product({ id: newId, ...productData });
         const saved = await product.save();
-
-        console.log(`DataService: Producto creado con ID ${newId}`);
         return this._cleanDoc(saved.toObject());
     }
 
@@ -62,7 +60,6 @@ class DataService {
         ).lean();
 
         if (!updated) return null;
-        console.log(`DataService: Producto ${id} actualizado`);
         return this._cleanDoc(updated);
     }
 
@@ -73,7 +70,6 @@ class DataService {
     async deleteProductPermanently(id) {
         const result = await Product.deleteOne({ id: parseInt(id) });
         if (result.deletedCount > 0) {
-            console.log(`DataService: Producto ${id} eliminado permanentemente`);
             return true;
         }
         return false;
@@ -98,7 +94,6 @@ class DataService {
         for (const [key, value] of Object.entries(configUpdates)) {
             await Config.findOneAndUpdate({ key }, { key, value }, { upsert: true, new: true });
         }
-        console.log('DataService: Configuración actualizada');
         return await this.getConfig();
     }
 
@@ -145,7 +140,6 @@ class DataService {
         for (const [key, value] of Object.entries(this.defaultConfig)) {
             await Config.findOneAndUpdate({ key }, { key, value }, { upsert: true });
         }
-        console.log('DataService: Configuración por defecto inicializada en MongoDB');
     }
 }
 

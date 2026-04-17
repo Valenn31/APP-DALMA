@@ -49,9 +49,7 @@ class AuthService {
             });
             
             await defaultAdmin.save();
-            
-            console.log('AuthService: Usuario admin creado - username: admin, password: admin123');
-            console.log('AuthService: ⚠️ CAMBIAR CONTRASEÑA INMEDIATAMENTE EN PRODUCCIÓN');
+            console.log('AuthService: Usuario admin por defecto creado. Cambiar contraseña en producción.');
         } catch (error) {
             console.error('AuthService: Error al inicializar admin:', error);
         }

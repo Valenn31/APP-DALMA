@@ -19,8 +19,6 @@ export class EventHandler {
     setupEventListeners() {
         // Event delegation principal para clicks
         document.addEventListener('click', (e) => this.handleClick(e));
-        
-        console.log('EventHandler: Event listeners configurados');
     }
 
     /**
@@ -85,42 +83,20 @@ export class EventHandler {
      * @param {string} category - Categoría seleccionada
      */
     handleSelectCategory(category) {
-        if (!category) {
-            console.error('EventHandler: Categoría no especificada');
-            return;
-        }
-        
-        console.log('EventHandler: Seleccionando categoría:', category);
+        if (!category) return;
         this.viewManager.selectCategory(category);
     }
 
-    /**
-     * Maneja el retorno a la vista de categorías
-     */
     handleShowCategories() {
-        console.log('EventHandler: Mostrando categorías');
         this.viewManager.showCategories();
     }
 
-    /**
-     * Maneja mostrar el detalle de un producto
-     * @param {number} productId - ID del producto
-     */
     handleShowProductDetail(productId) {
-        if (!productId || isNaN(productId)) {
-            console.error('EventHandler: ID de producto inválido:', productId);
-            return;
-        }
-        
-        console.log('EventHandler: Mostrando detalle de producto:', productId);
+        if (!productId || isNaN(productId)) return;
         this.modalManager.showProductDetail(productId);
     }
 
-    /**
-     * Maneja el cierre del modal de producto
-     */
     handleCloseProductDetail() {
-        console.log('EventHandler: Cerrando detalle de producto');
         this.modalManager.closeProductDetail();
     }
 
@@ -135,25 +111,13 @@ export class EventHandler {
         }
 
         const product = this.productManager.getById(productId);
-        if (!product) {
-            console.error('EventHandler: Producto no encontrado:', productId);
-            return;
-        }
+        if (!product) return;
 
-        console.log('EventHandler: Agregando al carrito:', product.name);
-        
-        // Agregar al carrito
         this.cartManager.addItem(product);
-        
-        // Mostrar notificación
         this.modalManager.showToast(`¡${product.name} agregado!`);
     }
 
-    /**
-     * Maneja alternar la visibilidad del carrito
-     */
     handleToggleCart() {
-        console.log('EventHandler: Alternando carrito');
         this.modalManager.toggleCart();
     }
 
@@ -163,17 +127,7 @@ export class EventHandler {
      * @param {number} delta - Cambio en la cantidad (+1, -1)
      */
     handleUpdateQuantity(productId, delta) {
-        if (!productId || isNaN(productId)) {
-            console.error('EventHandler: ID de producto inválido para actualizar cantidad:', productId);
-            return;
-        }
-
-        if (!delta || isNaN(delta)) {
-            console.error('EventHandler: Delta inválido para actualizar cantidad:', delta);
-            return;
-        }
-
-        console.log('EventHandler: Actualizando cantidad:', productId, delta);
+        if (!productId || isNaN(productId) || !delta || isNaN(delta)) return;
         this.cartManager.updateQuantity(productId, delta);
     }
 
@@ -181,8 +135,6 @@ export class EventHandler {
      * Maneja el envío del pedido por WhatsApp
      */
     handleSendWhatsAppOrder() {
-        console.log('EventHandler: Enviando pedido por WhatsApp');
-        
         const config = this.productManager.getConfig();
         
         // Obtener dirección de envío

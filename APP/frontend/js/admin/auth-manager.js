@@ -117,7 +117,6 @@ export class AuthManager {
                     return true;
                 }
             } catch (error) {
-                console.log('Token guardado inválido, mostrando login');
                 this.clearStoredAuth();
             }
         }

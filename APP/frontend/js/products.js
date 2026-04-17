@@ -38,7 +38,6 @@ export class ProductManager {
             
             this.metadata = {};
             
-            console.log(`ProductManager: Cargados ${this.products.length} productos`);
             return true;
         } catch (error) {
             console.error('ProductManager: Error al cargar productos:', error);

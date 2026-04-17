@@ -23,8 +23,6 @@ class AdminApp {
     }
 
     async initializeApp() {
-        console.log('ðŸš€ Iniciando Panel Administrativo...');
-        
         const restored = await this.auth.tryRestoreSession();
         if (restored) {
             this.showAdminPanel();

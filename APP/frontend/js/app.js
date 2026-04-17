@@ -21,25 +21,13 @@ class App {
      */
     async init() {
         try {
-            console.log('🚀 App: Iniciando aplicación...');
-            
-            // Mostrar loading si existe
             this.showLoading();
-            
-            // Inicializar managers en orden
             await this.initializeManagers();
-            
-            // Configurar la aplicación
             this.setupApplication();
-            
-            // Ocultar loading
             this.hideLoading();
-            
             this.isInitialized = true;
-            console.log('✅ App: Aplicación inicializada exitosamente');
-            
         } catch (error) {
-            console.error('❌ App: Error al inicializar la aplicación:', error);
+            console.error('App: Error al inicializar:', error);
             this.handleInitializationError(error);
         }
     }
@@ -48,43 +36,23 @@ class App {
      * Inicializa todos los managers principales
      */
     async initializeManagers() {
-        console.log('📦 App: Inicializando managers...');
-        
-        // 1. Inicializar ProductManager
         this.productManager = new ProductManager();
         
-        // 2. Cargar productos desde JSON
         const productsLoaded = await this.productManager.loadProducts();
         if (!productsLoaded) {
             throw new Error('No se pudieron cargar los productos');
         }
-        console.log('📄 App: Productos cargados correctamente');
         
-        // 3. Inicializar CartManager
         this.cartManager = new CartManager();
-        console.log('🛒 App: CartManager inicializado');
-        
-        // 4. Inicializar UIManager (que a su vez inicializa todos los sub-managers)
         this.uiManager = new UIManager(this.cartManager, this.productManager);
-        console.log('🎨 App: UIManager y sub-managers inicializados');
     }
 
     /**
      * Configura aspectos adicionales de la aplicación
      */
     setupApplication() {
-        console.log('⚙️ App: Configurando aplicación...');
-        
-        // Configurar manejo de errores globales
         this.setupErrorHandling();
-        
-        // Configurar eventos de la ventana
         this.setupWindowEvents();
-        
-        // Configurar PWA si es necesario
-        this.setupPWA();
-        
-        console.log('⚙️ App: Configuración completada');
     }
 
     /**
@@ -106,28 +74,15 @@ class App {
      * Configura eventos de la ventana
      */
     setupWindowEvents() {
-        // Manejar cambio de visibilidad de la página
         document.addEventListener('visibilitychange', () => {
             if (document.visibilityState === 'visible' && this.isInitialized) {
-                console.log('App: Página visible, refrescando datos...');
                 this.refresh();
             }
         });
 
-        // Manejar beforeunload para limpiar recursos
         window.addEventListener('beforeunload', () => {
             this.cleanup();
         });
-    }
-
-    /**
-     * Configura PWA si es necesario (placeholder)
-     */
-    setupPWA() {
-        // TODO: Agregar service worker si se requiere PWA
-        if ('serviceWorker' in navigator) {
-            console.log('App: Service Worker disponible');
-        }
     }
 
     /**
@@ -192,30 +147,18 @@ class App {
         if (!this.isInitialized) return;
         
         try {
-            console.log('🔄 App: Refrescando aplicación...');
-            
-            // Recargar productos
             await this.productManager.loadProducts();
-            
-            // Refrescar UI
             this.uiManager.refresh();
-            
-            console.log('✅ App: Aplicación refrescada');
         } catch (error) {
-            console.error('❌ App: Error al refrescar:', error);
+            console.error('App: Error al refrescar:', error);
             this.handleError(error);
         }
     }
 
-    /**
-     * Limpia recursos antes de cerrar
-     */
     cleanup() {
         if (this.uiManager) {
             this.uiManager.cleanup();
         }
-        
-        console.log('🧹 App: Recursos limpiados');
     }
 
     /**
@@ -235,9 +178,7 @@ class App {
 document.addEventListener('DOMContentLoaded', () => {
     const app = new App();
     
-    // Exponer para debugging en desarrollo
     if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
         window.dalmaApp = app;
-        console.log('🐛 App: Aplicación expuesta en window.dalmaApp para debugging');
     }
 });
