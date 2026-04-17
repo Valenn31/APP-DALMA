@@ -1,75 +1,15 @@
-// server.js - Servidor API REST para Una Cucharita Más
-const express = require('express');
-const cors = require('cors');
+// server.js - Servidor local de desarrollo
 const path = require('path');
 const mongoose = require('mongoose');
 require('dotenv').config();
 
-const app = express();
+const { app, connectDB } = require('./app');
+
 const PORT = process.env.PORT || 3000;
 
-// Middlewares globales
-app.use(cors({
-    origin: process.env.FRONTEND_URL || ['http://localhost:3000', 'http://127.0.0.1:5500'],
-    credentials: true,
-    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS']
-}));
-
-app.use(express.json({ limit: '10mb' }));
-app.use(express.urlencoded({ extended: true, limit: '10mb' }));
-
-// Servir archivos estáticos del frontend
+// Servir archivos estáticos del frontend (solo en local)
+const express = require('express');
 app.use(express.static(path.join(__dirname, '../frontend')));
-
-// Importar rutas
-const productRoutes = require('./src/routes/products');
-const configRoutes = require('./src/routes/config');
-const authRoutes = require('./src/routes/auth');
-
-// Rutas de la API
-app.use('/api/auth', authRoutes);
-app.use('/api/products', productRoutes);
-app.use('/api/config', configRoutes);
-
-// Ruta de salud básica
-app.get('/api/health', (req, res) => {
-    res.json({ 
-        success: true,
-        status: 'OK', 
-        message: 'Backend funcionando correctamente',
-        version: '1.0.0',
-        timestamp: new Date().toISOString()
-    });
-});
-
-// Middleware de manejo de errores
-app.use((err, req, res, next) => {
-    console.error('Error no manejado:', err);
-    
-    // Error de JSON malformado
-    if (err instanceof SyntaxError && err.status === 400 && 'body' in err) {
-        return res.status(400).json({
-            success: false,
-            error: 'JSON malformado',
-            message: 'Por favor verifica la sintaxis del JSON enviado'
-        });
-    }
-    
-    // Error genérico
-    res.status(500).json({
-        success: false,
-        error: 'Error interno del servidor',
-        message: process.env.NODE_ENV === 'development' ? err.message : 'Algo salió mal'
-    });
-});
-
-// Ruta 404 para APIs
-app.use('/api/*', (req, res) => {
-    res.status(404).json({ 
-        success: false,
-        error: 'Endpoint no encontrado'
-    });
-});
 
 // Rutas para páginas del frontend (después de API routes)
 app.get('/admin', (req, res) => {
@@ -84,14 +24,7 @@ app.get('*', (req, res) => {
 // Conectar a MongoDB e iniciar servidor
 async function startServer() {
     try {
-        const mongoUri = process.env.MONGODB_URI;
-        if (!mongoUri) {
-            console.error('❌ MONGODB_URI no configurado en .env');
-            process.exit(1);
-        }
-
-        await mongoose.connect(mongoUri);
-        console.log('✅ Conectado a MongoDB Atlas');
+        await connectDB();
 
         // Inicializar admin por defecto si no existe
         const { getInstance: getAuthService } = require('./src/services/auth-service');
@@ -106,7 +39,7 @@ async function startServer() {
             console.log('🍭 =====================================');
         });
     } catch (error) {
-        console.error('❌ Error al conectar a MongoDB:', error.message);
+        console.error('❌ Error al iniciar servidor:', error.message);
         process.exit(1);
     }
 }
