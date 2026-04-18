@@ -2,12 +2,31 @@ const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const AdminUser = require('../models/AdminUser');
 
-/**
- * AuthService - Maneja autenticación JWT y usuarios admin
- * Responsabilidad: Gestionar usuarios, tokens JWT y autenticación segura
- * Usa MongoDB (AdminUser model) para persistencia
- */
 class AuthService {
+        /**
+         * Inicializa el usuario admin por defecto si no existe
+         */
+        async initializeDefaultAdmin() {
+            try {
+                const count = await AdminUser.countDocuments();
+                if (count > 0) return;
+
+                console.log('AuthService: Creando usuario admin por defecto...');
+                const defaultAdmin = new AdminUser({
+                    id: 1,
+                    username: 'admin',
+                    password: await this.hashPassword('admin123'),
+                    email: 'admin@unacucharitamas.com',
+                    role: 'admin',
+                    active: true,
+                    lastLogin: null
+                });
+                await defaultAdmin.save();
+                console.log('AuthService: Usuario admin por defecto creado. Cambiar contraseña en producción.');
+            } catch (error) {
+                console.error('AuthService: Error al inicializar admin:', error);
+            }
+        }
     constructor() {
         this.jwtSecret = process.env.JWT_SECRET;
         if (!this.jwtSecret) {
@@ -19,151 +38,48 @@ class AuthService {
         }
         this.jwtExpire = process.env.JWT_EXPIRE || '24h';
         this.saltRounds = 12;
-        
-        // Token blacklist (in-memory, se limpia al reiniciar)
         this.tokenBlacklist = new Set();
-        
-        // Rate limiting para login
         this.loginAttempts = new Map();
         this.maxLoginAttempts = 5;
-        this.loginWindowMs = 15 * 60 * 1000; // 15 minutos
+        this.loginWindowMs = 15 * 60 * 1000;
     }
 
-    /**
-     * Inicializa usuario admin por defecto si no existe en MongoDB
-     * Debe llamarse después de que mongoose esté conectado
-     */
-    async initializeDefaultAdmin() {
-        try {
-            const count = await AdminUser.countDocuments();
-            if (count > 0) return;
-
-            console.log('AuthService: Creando usuario admin por defecto...');
-            
-            const defaultAdmin = new AdminUser({
-                id: 1,
-                username: 'admin',
-                password: await this.hashPassword('admin123'),
-                email: 'admin@unacucharitamas.com',
-                role: 'admin',
-                active: true,
-                lastLogin: null
-            });
-            
-            await defaultAdmin.save();
-            console.log('AuthService: Usuario admin por defecto creado. Cambiar contraseña en producción.');
-        } catch (error) {
-            console.error('AuthService: Error al inicializar admin:', error);
-        }
-    }
+    // ...existing methods...
 
     /**
-     * Carga usuarios desde MongoDB
-     * @returns {Array} Lista de usuarios
+     * Cambia el nombre de usuario de un usuario
+     * @param {number} userId
+     * @param {string} currentPassword
+     * @param {string} newUsername
+     * @returns {Object}
      */
-    async loadUsers() {
+    async changeUsername(userId, currentPassword, newUsername) {
         try {
-            const users = await AdminUser.find().lean();
-            return users.map(u => {
-                const { _id, __v, ...clean } = u;
-                return clean;
-            });
-        } catch (error) {
-            console.error('AuthService: Error al cargar usuarios:', error);
-            return [];
-        }
-    }
-
-    /**
-     * Guarda/actualiza un usuario en MongoDB
-     * @param {Array} users - Lista de usuarios (compatibilidad)
-     */
-    async saveUsers(users) {
-        try {
-            for (const user of users) {
-                await AdminUser.findOneAndUpdate(
-                    { id: user.id },
-                    user,
-                    { upsert: true, new: true }
-                );
+            if (!newUsername || newUsername.length < 3) {
+                return { success: false, message: 'El nuevo nombre de usuario debe tener al menos 3 caracteres' };
             }
-        } catch (error) {
-            console.error('AuthService: Error al guardar usuarios:', error);
-            throw new Error('No se pudieron guardar los usuarios');
-        }
-    }
-
-    /**
-     * Autentica un usuario
-     * @param {string} username - Nombre de usuario
-     * @param {string} password - Contraseña
-     * @returns {Object} Resultado de autenticación
-     */
-    async authenticateUser(username, password) {
-        try {
-            // Verificar rate limiting
-            if (this.isRateLimited(username)) {
-                return {
-                    success: false,
-                    message: 'Demasiados intentos de login. Intente nuevamente en 15 minutos.'
-                };
-            }
-
             const users = await this.loadUsers();
-            const user = users.find(u => u.username === username && u.active === true);
-            
-            if (!user) {
-                this.recordLoginAttempt(username);
-                return {
-                    success: false,
-                    message: 'Usuario no encontrado o inactivo'
-                };
+            const userIndex = users.findIndex(u => u.id === userId);
+            if (userIndex === -1) {
+                return { success: false, message: 'Usuario no encontrado' };
             }
-            
-            const isValidPassword = await this.verifyPassword(password, user.password);
-            
-            if (!isValidPassword) {
-                this.recordLoginAttempt(username);
-                return {
-                    success: false,
-                    message: 'Contraseña incorrecta'
-                };
+            const user = users[userIndex];
+            // Verificar contraseña actual
+            const isValidCurrent = await this.verifyPassword(currentPassword, user.password);
+            if (!isValidCurrent) {
+                return { success: false, message: 'Contraseña actual incorrecta' };
             }
-            
-            // Login exitoso, limpiar intentos
-            this.clearLoginAttempts(username);
-            
-            // Actualizar último login
-            user.lastLogin = new Date().toISOString();
+            // Verificar que el nuevo username no esté en uso
+            if (users.some(u => u.username === newUsername && u.id !== userId)) {
+                return { success: false, message: 'El nombre de usuario ya está en uso' };
+            }
+            users[userIndex].username = newUsername;
+            users[userIndex].updatedAt = new Date().toISOString();
             await this.saveUsers(users);
-            
-            // Generar token JWT
-            const token = this.generateToken({
-                id: user.id,
-                username: user.username,
-                email: user.email,
-                role: user.role
-            });
-            
-            return {
-                success: true,
-                message: 'Autenticación exitosa',
-                user: {
-                    id: user.id,
-                    username: user.username,
-                    email: user.email,
-                    role: user.role,
-                    lastLogin: user.lastLogin
-                },
-                token: token,
-                expiresIn: this.jwtExpire
-            };
+            return { success: true, message: 'Nombre de usuario cambiado exitosamente' };
         } catch (error) {
-            console.error('AuthService: Error en autenticación:', error);
-            return {
-                success: false,
-                message: 'Error interno de autenticación'
-            };
+            console.error('AuthService: Error al cambiar nombre de usuario:', error);
+            return { success: false, message: 'Error interno al cambiar nombre de usuario' };
         }
     }
 
@@ -395,9 +311,8 @@ class AuthService {
     }
 }
 
+// Exportación por clase y singleton para compatibilidad legacy
 module.exports = AuthService;
-
-// Singleton instance
 let instance = null;
 module.exports.getInstance = () => {
     if (!instance) {

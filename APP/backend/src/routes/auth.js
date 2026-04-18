@@ -21,7 +21,12 @@ router.use(logAdminAccess); // Log de accesos administrativos
 router.post('/logout', (req, res) => authController.logout(req, res));
 router.get('/profile', (req, res) => authController.getProfile(req, res));
 router.get('/verify', (req, res) => authController.verifyToken(req, res));
+
+// Cambiar contraseña
 router.put('/change-password', (req, res) => authController.changePassword(req, res));
+
+// Cambiar nombre de usuario
+router.put('/change-username', (req, res) => authController.changeUsername(req, res));
 
 // Rutas administrativas (requieren rol admin)
 router.use(requireAdmin); // Todas las rutas siguientes requieren rol admin

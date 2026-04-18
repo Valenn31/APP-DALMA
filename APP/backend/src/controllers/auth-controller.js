@@ -129,8 +129,6 @@ class AuthController {
         try {
             const { user } = req;
             const { currentPassword, newPassword, confirmPassword } = req.body;
-            
-            // Validar datos de entrada
             if (!currentPassword || !newPassword || !confirmPassword) {
                 return res.status(400).json({
                     success: false,
@@ -138,7 +136,6 @@ class AuthController {
                     code: 'MISSING_PASSWORD_FIELDS'
                 });
             }
-            
             if (newPassword !== confirmPassword) {
                 return res.status(400).json({
                     success: false,
@@ -146,14 +143,7 @@ class AuthController {
                     code: 'PASSWORD_MISMATCH'
                 });
             }
-            
-            // Cambiar contraseña
-            const result = await this.authService.changePassword(
-                user.id,
-                currentPassword,
-                newPassword
-            );
-            
+            const result = await this.authService.changePassword(user.id, currentPassword, newPassword);
             if (!result.success) {
                 return res.status(400).json({
                     success: false,
@@ -161,13 +151,11 @@ class AuthController {
                     code: 'PASSWORD_CHANGE_FAILED'
                 });
             }
-            
             res.json({
                 success: true,
                 message: result.message,
                 timestamp: new Date().toISOString()
             });
-            
             console.log(`AuthController: Contraseña cambiada - ${user.username} (${user.id})`);
         } catch (error) {
             console.error('AuthController.changePassword:', error);
@@ -175,6 +163,46 @@ class AuthController {
                 success: false,
                 error: 'Error al cambiar contraseña',
                 code: 'PASSWORD_ERROR'
+            });
+        }
+    }
+
+    /**
+     * Cambia el nombre de usuario del usuario actual
+     * PUT /api/auth/change-username
+     * Requiere autenticación
+     */
+    async changeUsername(req, res) {
+        try {
+            const { user } = req;
+            const { currentPassword, newUsername } = req.body;
+            if (!currentPassword || !newUsername) {
+                return res.status(400).json({
+                    success: false,
+                    error: 'Debes ingresar la contraseña actual y el nuevo nombre de usuario',
+                    code: 'MISSING_FIELDS'
+                });
+            }
+            const result = await this.authService.changeUsername(user.id, currentPassword, newUsername);
+            if (!result.success) {
+                return res.status(400).json({
+                    success: false,
+                    error: result.message,
+                    code: 'USERNAME_CHANGE_FAILED'
+                });
+            }
+            res.json({
+                success: true,
+                message: result.message,
+                timestamp: new Date().toISOString()
+            });
+            console.log(`AuthController: Username cambiado - ${user.username} → ${newUsername} (${user.id})`);
+        } catch (error) {
+            console.error('AuthController.changeUsername:', error);
+            res.status(500).json({
+                success: false,
+                error: 'Error al cambiar nombre de usuario',
+                code: 'USERNAME_ERROR'
             });
         }
     }

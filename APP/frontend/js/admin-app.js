@@ -32,6 +32,7 @@ class AdminApp {
         this.showLoginScreen();
     }
 
+
     setupEventListeners() {
         document.getElementById('loginForm').addEventListener('submit', (e) => {
             e.preventDefault();
@@ -57,30 +58,76 @@ class AdminApp {
         document.getElementById('logoutButton').addEventListener('click', () => this.handleLogout());
         
         document.getElementById('changePasswordBtn').addEventListener('click', () => {
-            this.notify.show('FunciÃ³n prÃ³ximamente', 'Cambio de contraseÃ±a estarÃ¡ disponible pronto', 'info');
+            document.getElementById('changePasswordModal').classList.remove('hidden');
         });
-        
+        document.getElementById('closeChangePasswordModal').addEventListener('click', () => {
+            this.closeChangePasswordModal();
+        });
+        document.getElementById('changePasswordModal').addEventListener('click', (e) => {
+            if (e.target.id === 'changePasswordModal') this.closeChangePasswordModal();
+        });
+        document.getElementById('changePasswordForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            this.handleChangePassword();
+        });
+        // ...otros listeners...
         document.querySelectorAll('.sidebar-item[data-section]').forEach(item => {
             item.addEventListener('click', () => {
                 this.navigateToSection(item.getAttribute('data-section'));
                 if (window.innerWidth < 1024) this.sidebar.close();
             });
         });
-        
         document.getElementById('sidebarToggle').addEventListener('click', () => this.sidebar.toggle());
         document.getElementById('sidebarOverlay').addEventListener('click', () => this.sidebar.close());
         document.getElementById('sidebarClose').addEventListener('click', () => this.sidebar.close());
-        
         document.addEventListener('click', (e) => {
             if (!e.target.closest('#userMenuButton')) {
                 document.getElementById('userDropdown').classList.add('hidden');
             }
         });
-        
         document.getElementById('toastClose').addEventListener('click', () => this.notify.hide());
         window.addEventListener('resize', () => this.sidebar.handleResize());
         window.addEventListener('auth:expired', () => this.handleLogout());
         window.addEventListener('products:refresh', () => this.navigateToSection('products'));
+    }
+
+    closeChangePasswordModal() {
+        document.getElementById('changePasswordModal').classList.add('hidden');
+        document.getElementById('changePasswordForm').reset();
+        document.getElementById('changePasswordError').classList.add('hidden');
+    }
+
+    async handleChangePassword() {
+        const currentPassword = document.getElementById('currentPassword').value;
+        const newPassword = document.getElementById('newPassword').value;
+        const confirmPassword = document.getElementById('confirmPassword').value;
+        const errorDiv = document.getElementById('changePasswordError');
+        errorDiv.classList.add('hidden');
+        errorDiv.textContent = '';
+
+        if (!currentPassword || !newPassword || !confirmPassword) {
+            errorDiv.textContent = 'Todos los campos son obligatorios';
+            errorDiv.classList.remove('hidden');
+            return;
+        }
+        if (newPassword !== confirmPassword) {
+            errorDiv.textContent = 'Las contraseñas no coinciden';
+            errorDiv.classList.remove('hidden');
+            return;
+        }
+
+        // Llamada al backend
+        const res = await this.api.fetchWithAuth('/auth/change-password', {
+            method: 'PUT',
+            body: JSON.stringify({ currentPassword, newPassword, confirmPassword })
+        });
+        if (!res || !res.success) {
+            errorDiv.textContent = (res && res.error) || 'Error al cambiar contraseña';
+            errorDiv.classList.remove('hidden');
+            return;
+        }
+        this.notify.show('Contraseña cambiada', 'Tu contraseña fue actualizada correctamente', 'success');
+        this.closeChangePasswordModal();
     }
 
     async handleLogin() {
