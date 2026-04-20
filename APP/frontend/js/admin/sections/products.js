@@ -224,9 +224,16 @@ export class ProductsSection {
                         </div>
                         <div><label class="block text-sm font-medium text-gray-700 mb-2">Descripción *</label><textarea id="productDescription" name="description" rows="3" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary"></textarea></div>
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">URL de Imagen</label>
-                            <input type="url" id="productImage" name="image" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary">
+                            <label class="block text-sm font-medium text-gray-700 mb-2">URL o Ruta de Imagen</label>
+                            <input type="text" id="productImage" name="image" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary" placeholder="Ej: https://... o assets/img/postres/archivo.jpg">
+                            <p class="text-xs text-gray-500 mt-1">Puedes pegar una URL completa o subir una imagen y se completará automáticamente.</p>
                             <div id="imagePreview" class="mt-2 hidden"><img id="imagePreviewImg" class="h-24 w-24 rounded-lg object-cover border border-gray-200" alt="Vista previa"></div>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">O subir imagen</label>
+                            <input type="file" id="imageInput" name="image" accept="image/*" class="mb-2">
+                            <button type="button" id="uploadImageBtn" class="bg-primary text-white px-3 py-1 rounded hover:bg-opacity-90">Subir Imagen</button>
+                            <div id="imageUploadResult" class="mt-2 text-sm"></div>
                         </div>
                         <div class="flex items-center"><input type="checkbox" id="productActive" name="active" class="mr-2"><label for="productActive" class="text-sm text-gray-700">Producto activo</label></div>
                         <div class="flex justify-end space-x-3 pt-4 border-t border-gray-200">
@@ -240,6 +247,41 @@ export class ProductsSection {
                 </div>
             </div>
         `;
+    }
+
+    // --- Imagen Upload Logic ---
+    setupImageUpload() {
+        const uploadBtn = document.getElementById('uploadImageBtn');
+        if (!uploadBtn) return;
+        uploadBtn.addEventListener('click', async (e) => {
+            e.preventDefault();
+            const fileInput = document.getElementById('imageInput');
+            const resultDiv = document.getElementById('imageUploadResult');
+            if (!fileInput.files.length) {
+                resultDiv.textContent = 'Selecciona un archivo primero.';
+                return;
+            }
+            const formData = new FormData();
+            formData.append('image', fileInput.files[0]);
+            resultDiv.textContent = 'Subiendo...';
+            try {
+                const res = await fetch('/api/images/upload', {
+                    method: 'POST',
+                    body: formData
+                });
+                const data = await res.json();
+                if (data.success) {
+                    resultDiv.innerHTML = 'Imagen subida: <code>' + data.imageUrl + '</code><br><img src="/' + data.imageUrl + '" width="100">';
+                    // Poner la URL devuelta en el campo de imagen
+                    document.getElementById('productImage').value = data.imageUrl;
+                    this._updateImagePreview(data.imageUrl);
+                } else {
+                    resultDiv.textContent = 'Error: ' + data.message;
+                }
+            } catch (err) {
+                resultDiv.textContent = 'Error al subir la imagen.';
+            }
+        });
     }
 
     // --- CRUD Operations ---
@@ -262,6 +304,9 @@ export class ProductsSection {
         
         modal.classList.remove('hidden');
         document.body.style.overflow = 'hidden';
+
+        // Inicializar lógica de subida de imagen
+        setTimeout(() => this.setupImageUpload(), 100);
     }
 
     hideModal() {

@@ -23,10 +23,17 @@ app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 const productRoutes = require('./src/routes/products');
 const configRoutes = require('./src/routes/config');
 const authRoutes = require('./src/routes/auth');
+console.log('Cargando router de image-upload...');
+const imageUploadRoutes = require('./src/routes/image-upload');
+console.log('Router de image-upload cargado:', typeof imageUploadRoutes);
 
 app.use('/api/auth', authRoutes);
 app.use('/api/products', productRoutes);
 app.use('/api/config', configRoutes);
+app.use('/api/images', (req, res, next) => {
+    console.log('Petición recibida en /api/images:', req.method, req.url);
+    next();
+}, imageUploadRoutes);
 
 // Ruta de salud
 app.get('/api/health', (req, res) => {

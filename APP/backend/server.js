@@ -7,6 +7,9 @@ const { app, connectDB } = require('./app');
 
 const PORT = process.env.PORT || 3000;
 
+
+// --- Rutas de la API ya están definidas en app.js ---
+
 // Servir archivos estáticos del frontend (solo en local)
 const express = require('express');
 app.use(express.static(path.join(__dirname, '../frontend')));
