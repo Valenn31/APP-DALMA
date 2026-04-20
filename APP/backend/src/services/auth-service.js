@@ -3,6 +3,52 @@ const bcrypt = require('bcryptjs');
 const AdminUser = require('../models/AdminUser');
 
 class AuthService {
+            /**
+             * Autentica un usuario admin por username y password
+             * @param {string} username
+             * @param {string} password
+             * @returns {Object} { success, user, token, expiresIn, message }
+             */
+            async authenticateUser(username, password) {
+                try {
+                    // Buscar usuario por username
+                    const user = await AdminUser.findOne({ username });
+                    if (!user) {
+                        return { success: false, message: 'Usuario no encontrado' };
+                    }
+                    if (!user.active) {
+                        return { success: false, message: 'Usuario inactivo' };
+                    }
+                    // Verificar contraseña
+                    const isValid = await bcrypt.compare(password, user.password);
+                    if (!isValid) {
+                        return { success: false, message: 'Contraseña incorrecta' };
+                    }
+                    // Generar token JWT
+                    const payload = {
+                        id: user.id,
+                        username: user.username,
+                        email: user.email,
+                        role: user.role
+                    };
+                    const token = this.generateToken(payload);
+                    return {
+                        success: true,
+                        user: {
+                            id: user.id,
+                            username: user.username,
+                            email: user.email,
+                            role: user.role,
+                            active: user.active
+                        },
+                        token,
+                        expiresIn: this.jwtExpire
+                    };
+                } catch (error) {
+                    console.error('AuthService: Error en authenticateUser:', error);
+                    return { success: false, message: 'Error interno de autenticación' };
+                }
+            }
         /**
          * Inicializa el usuario admin por defecto si no existe
          */
@@ -58,24 +104,23 @@ class AuthService {
             if (!newUsername || newUsername.length < 3) {
                 return { success: false, message: 'El nuevo nombre de usuario debe tener al menos 3 caracteres' };
             }
-            const users = await this.loadUsers();
-            const userIndex = users.findIndex(u => u.id === userId);
-            if (userIndex === -1) {
+            const user = await AdminUser.findOne({ id: userId });
+            if (!user) {
                 return { success: false, message: 'Usuario no encontrado' };
             }
-            const user = users[userIndex];
             // Verificar contraseña actual
             const isValidCurrent = await this.verifyPassword(currentPassword, user.password);
             if (!isValidCurrent) {
                 return { success: false, message: 'Contraseña actual incorrecta' };
             }
             // Verificar que el nuevo username no esté en uso
-            if (users.some(u => u.username === newUsername && u.id !== userId)) {
+            const usernameExists = await AdminUser.findOne({ username: newUsername, id: { $ne: userId } });
+            if (usernameExists) {
                 return { success: false, message: 'El nombre de usuario ya está en uso' };
             }
-            users[userIndex].username = newUsername;
-            users[userIndex].updatedAt = new Date().toISOString();
-            await this.saveUsers(users);
+            user.username = newUsername;
+            user.updatedAt = new Date();
+            await user.save();
             return { success: true, message: 'Nombre de usuario cambiado exitosamente' };
         } catch (error) {
             console.error('AuthService: Error al cambiar nombre de usuario:', error);
@@ -141,18 +186,13 @@ class AuthService {
      */
     async changePassword(userId, currentPassword, newPassword) {
         try {
-            const users = await this.loadUsers();
-            const userIndex = users.findIndex(u => u.id === userId);
-            
-            if (userIndex === -1) {
+            const user = await AdminUser.findOne({ id: userId });
+            if (!user) {
                 return {
                     success: false,
                     message: 'Usuario no encontrado'
                 };
             }
-            
-            const user = users[userIndex];
-            
             // Verificar contraseña actual
             const isValidCurrent = await this.verifyPassword(currentPassword, user.password);
             if (!isValidCurrent) {
@@ -161,7 +201,6 @@ class AuthService {
                     message: 'Contraseña actual incorrecta'
                 };
             }
-            
             // Validar nueva contraseña
             if (newPassword.length < 6) {
                 return {
@@ -169,13 +208,10 @@ class AuthService {
                     message: 'La nueva contraseña debe tener al menos 6 caracteres'
                 };
             }
-            
             // Cambiar contraseña
-            users[userIndex].password = await this.hashPassword(newPassword);
-            users[userIndex].updatedAt = new Date().toISOString();
-            
-            await this.saveUsers(users);
-            
+            user.password = await this.hashPassword(newPassword);
+            user.updatedAt = new Date();
+            await user.save();
             return {
                 success: true,
                 message: 'Contraseña cambiada exitosamente'
@@ -196,16 +232,10 @@ class AuthService {
      */
     async getUserById(userId) {
         try {
-            const users = await this.loadUsers();
-            const user = users.find(u => u.id === userId);
-            
-            if (!user) {
-                return null;
-            }
-            
-            // Retornar datos sin contraseña
-            const { password, ...userWithoutPassword } = user;
-            return userWithoutPassword;
+            const user = await AdminUser.findOne({ id: userId });
+            if (!user) return null;
+            const { password, ...userData } = user.toObject();
+            return userData;
         } catch (error) {
             console.error('AuthService: Error al obtener usuario:', error);
             return null;
