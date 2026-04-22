@@ -17,8 +17,22 @@ export class EventHandler {
      * Configura todos los event listeners usando event delegation
      */
     setupEventListeners() {
-        // Event delegation principal para clicks
         document.addEventListener('click', (e) => this.handleClick(e));
+        document.addEventListener('change', (e) => {
+            if (e.target.name === 'delivery-type') {
+                this.handleDeliveryTypeChange(e.target.value);
+            }
+        });
+
+        // Al abrir el teclado en mobile, desplazar el campo de dirección para que quede visible
+        const addressInput = document.getElementById('delivery-address');
+        if (addressInput) {
+            addressInput.addEventListener('focus', () => {
+                setTimeout(() => {
+                    addressInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }, 300);
+            });
+        }
     }
 
     /**
@@ -61,6 +75,14 @@ export class EventHandler {
                 
             case 'toggleCart':
                 this.handleToggleCart();
+                break;
+
+            case 'goToCheckout':
+                this.handleGoToCheckout();
+                break;
+
+            case 'backToCart':
+                this.modalManager.showCartStep();
                 break;
                 
             case 'updateQuantity':
@@ -131,44 +153,65 @@ export class EventHandler {
         this.cartManager.updateQuantity(productId, delta);
     }
 
+    handleGoToCheckout() {
+        if (this.cartManager.isEmpty()) {
+            this.modalManager.showToast('Agregá productos antes de continuar', 3000);
+            return;
+        }
+        this.modalManager.showCheckoutStep();
+    }
+
+    handleDeliveryTypeChange(value) {
+        const addressSection = document.getElementById('address-section');
+        if (addressSection) addressSection.classList.toggle('hidden', value !== 'delivery');
+        this.modalManager.updateCheckoutTotal();
+    }
+
     /**
      * Maneja el envío del pedido por WhatsApp
      */
     handleSendWhatsAppOrder() {
         const config = this.productManager.getConfig();
-        
-        // Obtener dirección de envío
+
+        // Obtener tipo de entrega
+        const deliveryTypeInput = document.querySelector('input[name="delivery-type"]:checked');
+        const deliveryType = deliveryTypeInput ? deliveryTypeInput.value : '';
+
+        if (!deliveryType) {
+            this.modalManager.showToast('Elegí el tipo de entrega', 3000);
+            return;
+        }
+
+        // Dirección solo requerida para delivery
         const addressInput = document.getElementById('delivery-address');
         const address = addressInput ? addressInput.value.trim() : '';
-        
-        if (!address) {
+
+        if (deliveryType === 'delivery' && !address) {
             this.modalManager.showToast('Ingresá tu dirección de envío', 3000);
             if (addressInput) addressInput.focus();
             return;
         }
-        
+
         // Obtener método de pago
         const paymentInput = document.querySelector('input[name="payment-method"]:checked');
         const paymentMethod = paymentInput ? paymentInput.value : '';
-        
+
         if (!paymentMethod) {
             this.modalManager.showToast('Elegí un método de pago', 3000);
             return;
         }
-        
+
         // Validar pedido antes de enviar
         const validation = this.orderService.validateOrder(this.cartManager, config);
-        
+
         if (!validation.valid) {
             console.error('EventHandler: Pedido inválido:', validation.errors);
             this.modalManager.showToast('Error: ' + validation.errors.join(', '), 4000);
             return;
         }
 
-        // Enviar pedido con dirección y método de pago
-        this.orderService.sendWhatsAppOrder(this.cartManager, config, address, paymentMethod);
-        
-        // Mostrar confirmación
+        const shippingCost = deliveryType === 'delivery' ? 300 : 0;
+        this.orderService.sendWhatsAppOrder(this.cartManager, config, address, paymentMethod, deliveryType, shippingCost);
         this.modalManager.showToast('¡Pedido enviado por WhatsApp!', 3000);
     }
 

@@ -98,57 +98,108 @@
         <div class="absolute bottom-0 left-0 right-0 h-[85vh] bg-white rounded-t-[50px] shadow-2xl flex flex-col translate-y-full transition-transform duration-500" id="cart-sheet">
             <div class="w-12 h-1.5 bg-[#e8ddd0] rounded-full mx-auto mt-4 mb-2"></div>
 
-            <div class="px-8 py-6 flex justify-between items-end">
-                <div>
-                    <h2 class="font-display text-2xl font-bold text-chocolate leading-none">Tu pedido</h2>
-                    <p class="text-chocolate/40 text-xs mt-2 uppercase tracking-widest">Una cucharita más</p>
+            <div class="px-8 py-6 flex justify-between items-center">
+                <div class="flex items-center gap-3">
+                    <button id="cart-back-btn" data-action="backToCart" class="hidden bg-[#f2e9dc] p-2.5 rounded-2xl text-chocolate active:scale-95 transition-all cursor-pointer">
+                        <i class="fa-solid fa-chevron-left text-sm"></i>
+                    </button>
+                    <div>
+                        <h2 id="cart-title" class="font-display text-2xl font-bold text-chocolate leading-none">Tu pedido</h2>
+                        <p class="text-chocolate/40 text-xs mt-2 uppercase tracking-widest">Una cucharita más</p>
+                    </div>
                 </div>
                 <button data-action="toggleCart" class="bg-[#f2e9dc] p-3 rounded-2xl text-chocolate active:rotate-90 transition-transform cursor-pointer">
                     <i class="fa-solid fa-xmark text-xl"></i>
                 </button>
             </div>
 
-            <div class="flex-1 overflow-y-auto px-8 py-2 space-y-4 no-scrollbar">
-                <div id="cart-items-list" class="space-y-4"></div>
-                <div id="empty-cart-msg" class="flex flex-col items-center justify-center py-20 text-[#e8ddd0]">
-                    <i class="fa-solid fa-ice-cream text-6xl mb-6"></i>
-                    <p class="font-bold text-gray-300">¡Tu bolsa está vacía!</p>
-                </div>
-            </div>
+            <!-- Contenedor de pasos -->
+            <div class="flex-1 relative overflow-hidden">
 
-            <div class="p-8 bg-[#f2e9dc]/40 border-t border-[#e8ddd0] rounded-t-[40px]">
-                <div class="flex justify-between items-center mb-4">
-                    <span class="text-chocolate/40 font-bold uppercase tracking-widest text-[10px]">Total de hoy</span>
-                    <span id="cart-total" class="font-display text-3xl font-bold text-chocolate">$0</span>
-                </div>
-                <div class="mb-4">
-                    <label for="delivery-address" class="text-chocolate/40 font-bold uppercase tracking-widest text-[10px] mb-1 block">Dirección de envío</label>
-                    <input type="text" id="delivery-address" placeholder="Ej: Av. San Martín 1234, Reconquista"
-                        class="w-full px-4 py-3 rounded-2xl border border-[#e8ddd0] bg-white text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-[#48332c]/20 placeholder:text-gray-300">
-                </div>
-                <div class="mb-4">
-                    <span class="text-chocolate/40 font-bold uppercase tracking-widest text-[10px] mb-2 block">Método de pago</span>
-                    <div class="flex gap-3">
-                        <label class="flex-1 cursor-pointer">
-                            <input type="radio" name="payment-method" value="efectivo" class="hidden peer">
-                            <div class="flex items-center justify-center gap-2 px-4 py-3 rounded-2xl border border-[#e8ddd0] bg-white text-sm text-gray-400 peer-checked:border-[#48332c] peer-checked:bg-[#48332c] peer-checked:text-white transition-all">
-                                <i class="fa-solid fa-money-bill-wave"></i>
-                                <span class="font-semibold">Efectivo</span>
-                            </div>
-                        </label>
-                        <label class="flex-1 cursor-pointer">
-                            <input type="radio" name="payment-method" value="transferencia" class="hidden peer">
-                            <div class="flex items-center justify-center gap-2 px-4 py-3 rounded-2xl border border-[#e8ddd0] bg-white text-sm text-gray-400 peer-checked:border-[#48332c] peer-checked:bg-[#48332c] peer-checked:text-white transition-all">
-                                <i class="fa-solid fa-building-columns"></i>
-                                <span class="font-semibold">Transferencia</span>
-                            </div>
-                        </label>
+                <!-- Paso 1: Lista de productos -->
+                <div id="cart-step-1" class="absolute inset-0 flex flex-col transition-transform duration-300">
+                    <div class="flex-1 overflow-y-auto px-8 py-2 space-y-4 no-scrollbar">
+                        <div id="cart-items-list" class="space-y-4"></div>
+                        <div id="empty-cart-msg" class="flex flex-col items-center justify-center py-20 text-[#e8ddd0]">
+                            <i class="fa-solid fa-ice-cream text-6xl mb-6"></i>
+                            <p class="font-bold text-gray-300">¡Tu bolsa está vacía!</p>
+                        </div>
+                    </div>
+                    <div class="px-8 pb-8 pt-5 bg-[#f2e9dc]/40 border-t border-[#e8ddd0]">
+                        <div class="flex justify-between items-center mb-4">
+                            <span class="text-chocolate/40 font-bold uppercase tracking-widest text-[10px]">Total de hoy</span>
+                            <span id="cart-total" class="font-display text-3xl font-bold text-chocolate">$0</span>
+                        </div>
+                        <button data-action="goToCheckout" class="w-full bg-[#48332c] text-white font-bold py-5 rounded-[28px] flex items-center justify-center gap-3 active:scale-95 transition-all text-lg cursor-pointer">
+                            Continuar
+                            <i class="fa-solid fa-chevron-right text-base"></i>
+                        </button>
                     </div>
                 </div>
-                <button data-action="sendWhatsAppOrder" class="btn-confirm w-full text-white font-bold py-5 rounded-[28px] flex items-center justify-center gap-4 active:scale-95 transition-all text-lg cursor-pointer">
-                    <i class="fa-brands fa-whatsapp text-2xl"></i>
-                    Confirmar Pedido
-                </button>
+
+                <!-- Paso 2: Datos del pedido -->
+                <div id="cart-step-2" class="absolute inset-0 flex flex-col transition-transform duration-300 translate-x-full">
+                    <div class="flex-1 overflow-y-auto px-8 py-4 no-scrollbar space-y-5">
+                        <div>
+                            <span class="text-chocolate/40 font-bold uppercase tracking-widest text-[10px] mb-2 block">Tipo de entrega</span>
+                            <div class="flex gap-3">
+                                <label class="flex-1 cursor-pointer">
+                                    <input type="radio" name="delivery-type" value="delivery" class="hidden peer">
+                                    <div class="flex items-center justify-center gap-2 px-4 py-3 rounded-2xl border border-[#e8ddd0] bg-white text-sm text-gray-400 peer-checked:border-[#48332c] peer-checked:bg-[#48332c] peer-checked:text-white transition-all">
+                                        <i class="fa-solid fa-motorcycle"></i>
+                                        <span class="font-semibold">Delivery</span>
+                                    </div>
+                                </label>
+                                <label class="flex-1 cursor-pointer">
+                                    <input type="radio" name="delivery-type" value="retiro" class="hidden peer">
+                                    <div class="flex items-center justify-center gap-2 px-4 py-3 rounded-2xl border border-[#e8ddd0] bg-white text-sm text-gray-400 peer-checked:border-[#48332c] peer-checked:bg-[#48332c] peer-checked:text-white transition-all">
+                                        <i class="fa-solid fa-store"></i>
+                                        <span class="font-semibold">Paso a retirar</span>
+                                    </div>
+                                </label>
+                            </div>
+                        </div>
+                        <div id="address-section" class="hidden">
+                            <label for="delivery-address" class="text-chocolate/40 font-bold uppercase tracking-widest text-[10px] mb-1 block">Dirección de envío</label>
+                            <input type="text" id="delivery-address" placeholder="Ej: Av. San Martín 1234, Reconquista"
+                                class="w-full px-4 py-3 rounded-2xl border border-[#e8ddd0] bg-white text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-[#48332c]/20 placeholder:text-gray-300">
+                        </div>
+                        <div>
+                            <span class="text-chocolate/40 font-bold uppercase tracking-widest text-[10px] mb-2 block">Método de pago</span>
+                            <div class="flex gap-3">
+                                <label class="flex-1 cursor-pointer">
+                                    <input type="radio" name="payment-method" value="efectivo" class="hidden peer">
+                                    <div class="flex items-center justify-center gap-2 px-4 py-3 rounded-2xl border border-[#e8ddd0] bg-white text-sm text-gray-400 peer-checked:border-[#48332c] peer-checked:bg-[#48332c] peer-checked:text-white transition-all">
+                                        <i class="fa-solid fa-money-bill-wave"></i>
+                                        <span class="font-semibold">Efectivo</span>
+                                    </div>
+                                </label>
+                                <label class="flex-1 cursor-pointer">
+                                    <input type="radio" name="payment-method" value="transferencia" class="hidden peer">
+                                    <div class="flex items-center justify-center gap-2 px-4 py-3 rounded-2xl border border-[#e8ddd0] bg-white text-sm text-gray-400 peer-checked:border-[#48332c] peer-checked:bg-[#48332c] peer-checked:text-white transition-all">
+                                        <i class="fa-solid fa-building-columns"></i>
+                                        <span class="font-semibold">Transferencia</span>
+                                    </div>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="px-8 pb-8 pt-5 bg-[#f2e9dc]/40 border-t border-[#e8ddd0]">
+                        <div id="shipping-row" class="hidden flex justify-between items-center mb-1">
+                            <span class="text-chocolate/40 text-[11px] font-semibold">Envío</span>
+                            <span class="text-chocolate/70 font-bold text-sm">+ $300</span>
+                        </div>
+                        <div class="flex justify-between items-center mb-4">
+                            <span class="text-chocolate/40 font-bold uppercase tracking-widest text-[10px]">Total de hoy</span>
+                            <span id="checkout-total" class="font-display text-3xl font-bold text-chocolate">$0</span>
+                        </div>
+                        <button data-action="sendWhatsAppOrder" class="btn-confirm w-full text-white font-bold py-5 rounded-[28px] flex items-center justify-center gap-4 active:scale-95 transition-all text-lg cursor-pointer">
+                            <i class="fa-brands fa-whatsapp text-2xl"></i>
+                            Confirmar Pedido
+                        </button>
+                    </div>
+                </div>
+
             </div>
         </div>
     </div>

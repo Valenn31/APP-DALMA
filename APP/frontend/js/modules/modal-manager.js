@@ -81,25 +81,61 @@ export class ModalManager {
     toggleCart() {
         const modal = document.getElementById('cart-modal');
         const sheet = document.getElementById('cart-sheet');
-        
+
         if (!modal || !sheet) {
             console.error('ModalManager: Elementos del modal de carrito no encontrados');
             return;
         }
 
         if (modal.classList.contains('hidden')) {
-            // Abrir carrito
             modal.classList.remove('hidden');
-            setTimeout(() => {
-                sheet.style.transform = "translateY(0)";
-            }, 10);
+            setTimeout(() => { sheet.style.transform = "translateY(0)"; }, 10);
         } else {
-            // Cerrar carrito
             sheet.style.transform = "translateY(100%)";
             setTimeout(() => {
                 modal.classList.add('hidden');
+                this.showCartStep(); // Resetear al paso 1 al cerrar
             }, 500);
         }
+    }
+
+    showCheckoutStep() {
+        const step1 = document.getElementById('cart-step-1');
+        const step2 = document.getElementById('cart-step-2');
+        const backBtn = document.getElementById('cart-back-btn');
+        const title = document.getElementById('cart-title');
+
+        if (step1) step1.style.transform = 'translateX(-100%)';
+        if (step2) step2.style.transform = 'translateX(0)';
+        if (backBtn) backBtn.classList.remove('hidden');
+        if (title) title.textContent = 'Tu información';
+
+        this.updateCheckoutTotal();
+    }
+
+    showCartStep() {
+        const step1 = document.getElementById('cart-step-1');
+        const step2 = document.getElementById('cart-step-2');
+        const backBtn = document.getElementById('cart-back-btn');
+        const title = document.getElementById('cart-title');
+
+        if (step1) step1.style.transform = 'translateX(0)';
+        if (step2) step2.style.transform = 'translateX(100%)';
+        if (backBtn) backBtn.classList.add('hidden');
+        if (title) title.textContent = 'Tu pedido';
+    }
+
+    updateCheckoutTotal() {
+        const checkoutTotalEl = document.getElementById('checkout-total');
+        const shippingRow = document.getElementById('shipping-row');
+        if (!checkoutTotalEl) return;
+
+        const subtotal = this.cartManager.getTotal();
+        const deliveryTypeInput = document.querySelector('input[name="delivery-type"]:checked');
+        const shippingCost = deliveryTypeInput?.value === 'delivery' ? 300 : 0;
+
+        if (shippingRow) shippingRow.classList.toggle('hidden', shippingCost === 0);
+        checkoutTotalEl.innerText = `$${(subtotal + shippingCost).toLocaleString()}`;
     }
 
     /**
@@ -132,11 +168,13 @@ export class ModalManager {
         list.innerHTML = cart.map(item => this.createCartItemHTML(item)).join('');
 
         // Actualizar totales
-        const total = this.cartManager.getTotal();
+        const subtotal = this.cartManager.getTotal();
         const count = this.cartManager.getItemCount();
-        totalEl.innerText = `$${total.toLocaleString()}`;
+
+        totalEl.innerText = `$${subtotal.toLocaleString()}`;
         countEl.innerText = count;
         countEl.classList.remove('hidden');
+        this.updateCheckoutTotal();
     }
 
     /**
