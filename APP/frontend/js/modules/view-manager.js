@@ -97,18 +97,24 @@ export class ViewManager {
      */
     createProductCard(product) {
         return `
-            <div class="product-card rounded-[15px] shadow-sm flex items-center border border-white">
-                <div data-action="showProductDetail" data-product-id="${product.id}" class="flex items-center gap-5 flex-1 p-1 cursor-pointer active:scale-95 transition-transform min-w-0">
-                    <img src="${product.img}" class="w-24 h-24 rounded-[10px] object-cover flex-shrink-0" alt="${product.name}">
-                    <div class="flex-1 min-w-0">
-                        <h3 class="font-bold text-chocolate text-base leading-tight">${product.name}</h3>
-                        <p class="text-gray-400 text-[10px] my-1 line-clamp-2">${product.desc}</p>
-                        <span class="font-black text-chocolate text-lg block mt-2">$${product.price.toLocaleString()}</span>
+            <div class="product-card rounded-2xl overflow-hidden flex items-stretch">
+                <div data-action="showProductDetail" data-product-id="${product.id}"
+                     class="flex items-stretch flex-1 cursor-pointer min-w-0 active:opacity-75 transition-opacity">
+                    <img src="${product.img}" class="w-28 h-28 object-cover flex-shrink-0" alt="${product.name}">
+                    <div class="flex-1 px-4 py-3 min-w-0 flex flex-col justify-between">
+                        <div>
+                            <h3 class="font-bold text-chocolate text-[15px] leading-snug">${product.name}</h3>
+                            <p class="text-gray-400 text-[11px] mt-1 line-clamp-1">${product.desc}</p>
+                        </div>
+                        <span class="font-black text-[#c49a6c] text-lg">$${product.price.toLocaleString()}</span>
                     </div>
                 </div>
-                <button data-action="addToCart" data-product-id="${product.id}" class="bg-[#7d8c56] text-white w-9 h-9 rounded-xl flex items-center justify-center active:scale-90 transition-all shadow-md cursor-pointer flex-shrink-0 mr-2">
-                    <i class="fa-solid fa-plus text-xs"></i>
-                </button>
+                <div class="flex items-center pr-3 flex-shrink-0">
+                    <button data-action="addToCart" data-product-id="${product.id}"
+                            class="bg-[#7d8c56] text-white w-10 h-10 rounded-xl flex items-center justify-center active:scale-90 transition-all shadow-sm cursor-pointer">
+                        <i class="fa-solid fa-plus text-sm"></i>
+                    </button>
+                </div>
             </div>
         `;
     }

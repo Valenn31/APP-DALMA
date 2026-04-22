@@ -1,5 +1,5 @@
 @import url('variables.css');
-@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&family=Playfair+Display:ital,wght@0,700;0,800;0,900;1,700&display=swap');
 
 body {
     font-family: 'Outfit', sans-serif;
@@ -9,23 +9,33 @@ body {
     overflow-x: hidden;
 }
 
-/* Card de Categoría Estilizada */
+.font-display {
+    font-family: 'Playfair Display', serif;
+}
+
+/* Card de Categoría */
 .category-card {
-    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-    background-color: var(--color-blanco);
+    transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    box-shadow: 0 8px 28px rgba(72, 51, 44, 0.14);
 }
 
 .category-card:active {
-    transform: scale(0.96);
+    transform: scale(0.97);
+}
+
+.category-card-info {
+    background-color: var(--color-blanco);
+    border-top: 1px solid var(--color-crema-oscura);
 }
 
 .product-card {
     background-color: var(--color-blanco);
     transition: transform 0.2s;
+    box-shadow: 0 2px 14px rgba(72, 51, 44, 0.07);
 }
 
 .product-card:active {
-    transform: scale(0.97);
+    transform: scale(0.98);
 }
 
 /* Animaciones */
@@ -34,16 +44,6 @@ body {
     to { transform: translateY(0); opacity: 1; }
 }
 .animate-content { animation: slideInUp 0.5s ease-out forwards; }
-
-/* Estilo para el Logo de Fallback (Cucharita) */
-.fallback-logo {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: white;
-    border-radius: 50%;
-    border: 2px solid var(--color-crema);
-}
 
 /* Scroll personalizado */
 .no-scrollbar::-webkit-scrollbar { display: none; }
@@ -56,5 +56,5 @@ body {
 
 /* Botón flotante del carrito */
 .floating-cart {
-    box-shadow: 0 10px 25px rgba(72, 51, 44, 0.2);
+    box-shadow: 0 10px 30px rgba(72, 51, 44, 0.25);
 }
