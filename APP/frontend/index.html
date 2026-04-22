@@ -10,8 +10,19 @@
 </head>
 <body class="min-h-screen">
 
+    <!-- Pantalla Tienda Cerrada -->
+    <section id="store-closed-view" class="hidden px-6 pt-16 pb-6 h-dvh flex flex-col items-center justify-center text-center">
+        <div class="w-24 h-24 rounded-full bg-white shadow-2xl flex items-center justify-center text-5xl text-chocolate mb-6">
+            <i class="fa-solid fa-spoon"></i>
+        </div>
+        <h2 class="text-3xl font-black text-chocolate mb-3">Tienda cerrada</h2>
+        <p class="text-gray-500 text-base max-w-xs">
+            En este momento no estamos tomando pedidos. ¡Volvemos pronto!
+        </p>
+    </section>
+
     <!-- Botón Flotante del Carrito (Reemplaza al del Header) -->
-    <button data-action="toggleCart" class="floating-cart fixed top-6 right-6 z-50 bg-amber-900 text-white p-4 rounded-2xl active:scale-90 transition-all cursor-pointer">
+    <button id="floating-cart" data-action="toggleCart" class="floating-cart fixed top-6 right-6 z-50 bg-amber-900 text-white p-4 rounded-2xl active:scale-90 transition-all cursor-pointer">
         <i class="fa-solid fa-cart-shopping text-xl"></i>
         <span id="cart-count" class="absolute -top-1 -right-1 bg-verde text-white text-[10px] font-bold h-5 w-5 rounded-full flex items-center justify-center border-2 border-white hidden">0</span>
     </button>

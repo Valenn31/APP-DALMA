@@ -48,7 +48,8 @@ class ConfigController {
                 socialMedia: storeConfig.socialMedia,
                 businessHours: config.business?.hours,
                 categories: config.categories,
-                currency: storeConfig.currencySymbol || '$'
+                currency: storeConfig.currencySymbol || '$',
+                maintenanceMode: config.business?.maintenanceMode || false
             };
             
             res.json({

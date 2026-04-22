@@ -28,7 +28,8 @@ export class ProductManager {
                 this.config = {
                     store: storeData.data,
                     categories: storeData.data.categories || [],
-                    stock: { trackStock: true }
+                    stock: { trackStock: true },
+                    business: { maintenanceMode: storeData.data.maintenanceMode || false }
                 };
                 this.categories = storeData.data.categories || [];
             }

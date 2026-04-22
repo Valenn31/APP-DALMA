@@ -29,6 +29,13 @@ class App {
         } catch (error) {
             console.error('App: Error al inicializar:', error);
             this.handleInitializationError(error);
+            return;
+        }
+
+        if (this.productManager.isMaintenanceMode()) {
+            document.getElementById('store-closed-view')?.classList.remove('hidden');
+            document.getElementById('categories-view')?.classList.add('hidden');
+            document.getElementById('floating-cart')?.classList.add('hidden');
         }
     }
 

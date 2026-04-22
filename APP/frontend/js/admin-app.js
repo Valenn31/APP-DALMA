@@ -8,6 +8,7 @@ import { NotificationManager } from './admin/notification.js';
 import { SidebarManager } from './admin/sidebar.js';
 import { DashboardSection } from './admin/sections/dashboard.js';
 import { ProductsSection } from './admin/sections/products.js';
+import { ConfigSection } from './admin/sections/config.js';
 
 class AdminApp {
     constructor() {
@@ -17,6 +18,7 @@ class AdminApp {
         this.sidebar = new SidebarManager();
         this.dashboard = new DashboardSection(this.api);
         this.products = new ProductsSection(this.api, this.notify);
+        this.configSection = new ConfigSection(this.api, this.notify);
 
         this.initializeApp();
         this.setupEventListeners();
@@ -181,7 +183,7 @@ class AdminApp {
                     content = '<div class="text-center py-12"><h2 class="text-2xl font-bold text-gray-600">Sección de Stock</h2><p class="text-gray-500 mt-2">En desarrollo...</p></div>';
                     break;
                 case 'config':
-                    content = '<div class="text-center py-12"><h2 class="text-2xl font-bold text-gray-600">Sección de Configuración</h2><p class="text-gray-500 mt-2">En desarrollo...</p></div>';
+                    content = await this.configSection.render();
                     break;
                 default:
                     content = '<div class="text-center py-12"><h2 class="text-2xl font-bold text-gray-600">Sección en desarrollo</h2></div>';
@@ -191,6 +193,9 @@ class AdminApp {
             
             if (sectionName === 'products') {
                 this.products.initializeEvents();
+            }
+            if (sectionName === 'config') {
+                this.configSection.initializeEvents();
             }
         } catch (error) {
             console.error(`Error cargando sección ${sectionName}:`, error);
