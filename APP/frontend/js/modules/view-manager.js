@@ -97,18 +97,18 @@ export class ViewManager {
      */
     createProductCard(product) {
         return `
-            <div data-action="showProductDetail" data-product-id="${product.id}" class="product-card rounded-[15px] p-1 shadow-sm flex items-center gap-5 border border-white cursor-pointer active:scale-95 transition-transform">
-                <img src="${product.img}" class="w-24 h-24 rounded-[10px] object-cover" alt="${product.name}">
-                <div class="flex-1">
-                    <h3 class="font-bold text-chocolate text-base leading-tight">${product.name}</h3>
-                    <p class="text-gray-400 text-[10px] my-1 line-clamp-2">${product.desc}</p>
-                    <div class="flex justify-between items-center mt-2">
-                        <span class="font-black text-chocolate text-lg">$${product.price.toLocaleString()}</span>
-                        <button data-action="addToCart" data-product-id="${product.id}" class="bg-[#7d8c56] text-white w-9 h-9 rounded-xl flex items-center justify-center active:scale-90 transition-all shadow-md cursor-pointer">
-                            <i class="fa-solid fa-plus text-xs"></i>
-                        </button>
+            <div class="product-card rounded-[15px] shadow-sm flex items-center border border-white">
+                <div data-action="showProductDetail" data-product-id="${product.id}" class="flex items-center gap-5 flex-1 p-1 cursor-pointer active:scale-95 transition-transform min-w-0">
+                    <img src="${product.img}" class="w-24 h-24 rounded-[10px] object-cover flex-shrink-0" alt="${product.name}">
+                    <div class="flex-1 min-w-0">
+                        <h3 class="font-bold text-chocolate text-base leading-tight">${product.name}</h3>
+                        <p class="text-gray-400 text-[10px] my-1 line-clamp-2">${product.desc}</p>
+                        <span class="font-black text-chocolate text-lg block mt-2">$${product.price.toLocaleString()}</span>
                     </div>
                 </div>
+                <button data-action="addToCart" data-product-id="${product.id}" class="bg-[#7d8c56] text-white w-9 h-9 rounded-xl flex items-center justify-center active:scale-90 transition-all shadow-md cursor-pointer flex-shrink-0 mr-2">
+                    <i class="fa-solid fa-plus text-xs"></i>
+                </button>
             </div>
         `;
     }

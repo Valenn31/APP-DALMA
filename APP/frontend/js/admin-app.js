@@ -1,5 +1,5 @@
 ﻿/**
- * Admin Panel - Coordinador principal (importa mÃ³dulos especializados)
+ * Admin Panel - Coordinador principal (importa módulos especializados)
  */
 import { CONFIG, appState } from './admin/config.js';
 import { ApiClient } from './admin/api-client.js';
@@ -133,14 +133,14 @@ class AdminApp {
     async handleLogin() {
         const success = await this.auth.handleLogin();
         if (success) {
-            this.notify.show('Â¡Bienvenido!', 'Login exitoso', 'success');
+            this.notify.show('¡Bienvenido!', 'Login exitoso', 'success');
             this.showAdminPanel();
         }
     }
 
     async handleLogout() {
         await this.auth.handleLogout();
-        this.notify.show('SesiÃ³n cerrada', 'Has cerrado sesiÃ³n correctamente', 'info');
+        this.notify.show('Sesión cerrada', 'Has cerrado sesión correctamente', 'info');
         this.showLoginScreen();
     }
 
@@ -178,13 +178,13 @@ class AdminApp {
                     content = await this.products.render();
                     break;
                 case 'stock':
-                    content = '<div class="text-center py-12"><h2 class="text-2xl font-bold text-gray-600">SecciÃ³n de Stock</h2><p class="text-gray-500 mt-2">En desarrollo...</p></div>';
+                    content = '<div class="text-center py-12"><h2 class="text-2xl font-bold text-gray-600">Sección de Stock</h2><p class="text-gray-500 mt-2">En desarrollo...</p></div>';
                     break;
                 case 'config':
-                    content = '<div class="text-center py-12"><h2 class="text-2xl font-bold text-gray-600">SecciÃ³n de ConfiguraciÃ³n</h2><p class="text-gray-500 mt-2">En desarrollo...</p></div>';
+                    content = '<div class="text-center py-12"><h2 class="text-2xl font-bold text-gray-600">Sección de Configuración</h2><p class="text-gray-500 mt-2">En desarrollo...</p></div>';
                     break;
                 default:
-                    content = '<div class="text-center py-12"><h2 class="text-2xl font-bold text-gray-600">SecciÃ³n en desarrollo</h2></div>';
+                    content = '<div class="text-center py-12"><h2 class="text-2xl font-bold text-gray-600">Sección en desarrollo</h2></div>';
             }
             
             mainContent.innerHTML = content;
@@ -193,12 +193,12 @@ class AdminApp {
                 this.products.initializeEvents();
             }
         } catch (error) {
-            console.error(`Error cargando secciÃ³n ${sectionName}:`, error);
+            console.error(`Error cargando sección ${sectionName}:`, error);
             mainContent.innerHTML = `
                 <div class="text-center py-12">
                     <div class="text-red-500 text-6xl mb-4"><i class="fas fa-exclamation-triangle"></i></div>
-                    <h2 class="text-2xl font-bold text-gray-600 mb-2">Error al cargar la secciÃ³n</h2>
-                    <p class="text-gray-500">Por favor, intÃ©ntelo nuevamente</p>
+                    <h2 class="text-2xl font-bold text-gray-600 mb-2">Error al cargar la sección</h2>
+                    <p class="text-gray-500">Por favor, inténtelo nuevamente</p>
                     <button onclick="location.reload()" class="mt-4 bg-primary text-white px-4 py-2 rounded-lg hover:bg-opacity-90">Recargar</button>
                 </div>
             `;

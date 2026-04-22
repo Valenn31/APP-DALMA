@@ -1,9 +1,25 @@
 // app.js - Express app exportable para Vercel y desarrollo local
 const express = require('express');
+const helmet = require('helmet');
 const cors = require('cors');
 const mongoose = require('mongoose');
+require('dotenv').config();
 
 const app = express();
+
+app.use(helmet({
+    contentSecurityPolicy: {
+        directives: {
+            defaultSrc: ["'self'"],
+            scriptSrc: ["'self'", 'https://cdn.tailwindcss.com', "'unsafe-inline'"],
+            scriptSrcAttr: ["'unsafe-inline'"],
+            styleSrc: ["'self'", "'unsafe-inline'", 'https://cdnjs.cloudflare.com', 'https://fonts.googleapis.com'],
+            fontSrc: ["'self'", 'https://cdnjs.cloudflare.com', 'https://fonts.gstatic.com'],
+            imgSrc: ["'self'", 'data:', 'https://images.unsplash.com', 'blob:'],
+            connectSrc: ["'self'", 'https://unacucharitamas.onrender.com'],
+        }
+    }
+}));
 
 // --- CORS ---
 const allowedOrigins = process.env.FRONTEND_URL
@@ -23,17 +39,12 @@ app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 const productRoutes = require('./src/routes/products');
 const configRoutes = require('./src/routes/config');
 const authRoutes = require('./src/routes/auth');
-console.log('Cargando router de image-upload...');
 const imageUploadRoutes = require('./src/routes/image-upload');
-console.log('Router de image-upload cargado:', typeof imageUploadRoutes);
 
 app.use('/api/auth', authRoutes);
 app.use('/api/products', productRoutes);
 app.use('/api/config', configRoutes);
-app.use('/api/images', (req, res, next) => {
-    console.log('Petición recibida en /api/images:', req.method, req.url);
-    next();
-}, imageUploadRoutes);
+app.use('/api/images', imageUploadRoutes);
 
 // Ruta de salud
 app.get('/api/health', (req, res) => {
@@ -81,9 +92,9 @@ async function connectDB() {
         return;
     }
 
-    const mongoUri = process.env.MONGODB_URI;
+    const mongoUri = process.env.MONGO_URI;
     if (!mongoUri) {
-        throw new Error('MONGODB_URI no configurado');
+        throw new Error('MONGO_URI no configurado');
     }
 
     await mongoose.connect(mongoUri);

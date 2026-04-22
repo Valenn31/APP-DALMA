@@ -2,6 +2,8 @@
  * ProductManager - Maneja la carga y consulta de productos
  * Responsabilidad: Gestionar datos de productos, stock y configuración
  */
+import { API_BASE_URL } from './api-config.js';
+
 export class ProductManager {
     constructor() {
         this.products = [];
@@ -10,16 +12,8 @@ export class ProductManager {
         this.categories = [];
     }
 
-    /**
-     * Carga productos desde la API del backend
-     * @returns {boolean} - True si se cargaron correctamente
-     */
     async loadProducts() {
         try {
-            // Cargar productos y config pública en paralelo desde la API
-            const API_BASE_URL = (typeof window !== 'undefined' && window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1')
-                ? 'https://unacucharitamas.onrender.com/api'
-                : '/api';
             const [productsRes, storeRes] = await Promise.all([
                 fetch(`${API_BASE_URL}/products`),
                 fetch(`${API_BASE_URL}/config/store`)
