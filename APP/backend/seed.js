@@ -14,9 +14,9 @@ const AdminUser = require('./src/models/AdminUser');
 const bcrypt = require('bcryptjs');
 
 async function seed() {
-    const mongoUri = process.env.MONGODB_URI;
+    const mongoUri = process.env.MONGO_URI;
     if (!mongoUri) {
-        console.error('❌ MONGODB_URI no configurado en .env');
+        console.error('❌ MONGO_URI no configurado en .env');
         process.exit(1);
     }
 
