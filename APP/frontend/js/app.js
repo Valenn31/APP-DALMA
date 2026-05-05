@@ -32,10 +32,26 @@ class App {
             return;
         }
 
-        if (this.productManager.isMaintenanceMode()) {
+        const allCategories = this.productManager.categories;
+        const bothClosed = allCategories.length > 0 && allCategories.every(cat => cat.active === false);
+
+        if (bothClosed) {
             document.getElementById('store-closed-view')?.classList.remove('hidden');
             document.getElementById('categories-view')?.classList.add('hidden');
             document.getElementById('floating-cart')?.classList.add('hidden');
+        } else {
+            allCategories.forEach(cat => {
+                if (cat.active === false) {
+                    const card = document.getElementById(`category-card-${cat.id}`);
+                    if (!card) return;
+                    card.removeAttribute('data-action');
+                    card.removeAttribute('data-category');
+                    card.classList.add('opacity-50', 'cursor-not-allowed');
+                    card.style.pointerEvents = 'none';
+                    const subtitle = document.getElementById(`category-subtitle-${cat.id}`);
+                    if (subtitle) subtitle.textContent = 'No disponible';
+                }
+            });
         }
     }
 
