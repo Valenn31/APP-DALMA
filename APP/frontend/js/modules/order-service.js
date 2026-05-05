@@ -92,9 +92,23 @@ export class OrderService {
         lines.push('─'.repeat(30));
         lines.push('');
 
-        cart.forEach(item => {
-            const itemTotal = item.price * item.quantity;
-            lines.push(`${ic.spoon} *${item.quantity}x* ${item.name} — _${currencySymbol}${itemTotal.toLocaleString()}_`);
+        const categoryLabels = { chocolates: 'Chocolates', postres: 'Postres' };
+        const grouped = cart.reduce((acc, item) => {
+            const cat = item.category || 'otros';
+            if (!acc[cat]) acc[cat] = [];
+            acc[cat].push(item);
+            return acc;
+        }, {});
+        const cats = Object.keys(grouped);
+        const multiCat = cats.length > 1;
+
+        cats.forEach(cat => {
+            if (multiCat) lines.push(`*— ${categoryLabels[cat] || cat} —*`);
+            grouped[cat].forEach(item => {
+                const itemTotal = item.price * item.quantity;
+                lines.push(`${ic.spoon} *${item.quantity}x* ${item.name} — _${currencySymbol}${itemTotal.toLocaleString()}_`);
+            });
+            if (multiCat) lines.push('');
         });
 
         lines.push('');
