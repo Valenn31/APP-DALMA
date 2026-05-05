@@ -352,7 +352,7 @@ class ProductController {
         }
 
         // Campos opcionales
-        const optionalFields = ['image', 'active', 'featured', 'tags', 'cost', 'margin', 'sku', 'weight', 'preparationTime', 'allergens'];
+        const optionalFields = ['image', 'active', 'featured', 'tags', 'cost', 'margin', 'sku', 'weight', 'preparationTime', 'allergens', 'minStock', 'variants'];
         optionalFields.forEach(field => {
             if (data[field] !== undefined) {
                 validatedData[field] = data[field];

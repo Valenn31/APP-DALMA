@@ -95,10 +95,11 @@ export class ProductManager {
             name: product.name,
             price: product.price,
             category: product.category,
-            desc: product.description, // Compatibilidad hacia atrás
+            desc: product.description,
             description: product.description,
-            img: product.image, // Compatibilidad hacia atrás  
-            image: product.image
+            img: product.image,
+            image: product.image,
+            variants: product.variants || []
         };
 
         // Campos adicionales para admin o análisis

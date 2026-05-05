@@ -106,7 +106,8 @@ export class OrderService {
             if (multiCat) lines.push(`*— ${categoryLabels[cat] || cat} —*`);
             grouped[cat].forEach(item => {
                 const itemTotal = item.price * item.quantity;
-                lines.push(`${ic.spoon} *${item.quantity}x* ${item.name} — _${currencySymbol}${itemTotal.toLocaleString()}_`);
+                const variantText = item.selectedVariant?.name ? ` _(${item.selectedVariant.name})_` : '';
+                lines.push(`${ic.spoon} *${item.quantity}x* ${item.name}${variantText} — _${currencySymbol}${itemTotal.toLocaleString()}_`);
             });
             if (multiCat) lines.push('');
         });

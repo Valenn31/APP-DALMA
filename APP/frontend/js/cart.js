@@ -8,22 +8,24 @@ export class CartManager {
         this.updateUICallback = callback;
     }
 
-    addItem(product) {
-        const existing = this.cart.find(item => item.id === product.id);
+    addItem(product, variant = null) {
+        const variantKey = variant?.name ?? null;
+        const effectivePrice = (variant?.price != null) ? variant.price : product.price;
+        const existing = this.cart.find(i => i.id === product.id && (i.selectedVariant?.name ?? null) === variantKey);
         if (existing) {
             existing.quantity++;
         } else {
-            this.cart.push({ ...product, quantity: 1 });
+            this.cart.push({ ...product, price: effectivePrice, quantity: 1, selectedVariant: variant });
         }
         this.triggerUIUpdate();
     }
 
-    updateQuantity(id, delta) {
-        const item = this.cart.find(i => i.id === id);
+    updateQuantity(id, delta, variantName = null) {
+        const item = this.cart.find(i => i.id === id && (i.selectedVariant?.name ?? null) === (variantName || null));
         if (item) {
             item.quantity += delta;
             if (item.quantity <= 0) {
-                this.cart = this.cart.filter(i => i.id !== id);
+                this.cart = this.cart.filter(i => i !== item);
             }
             this.triggerUIUpdate();
         }

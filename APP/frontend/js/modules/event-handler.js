@@ -88,7 +88,8 @@ export class EventHandler {
             case 'updateQuantity':
                 e.stopPropagation();
                 const delta = parseInt(actionElement.dataset.delta) || 0;
-                this.handleUpdateQuantity(parseInt(productId), delta);
+                const variantName = actionElement.dataset.variantName || null;
+                this.handleUpdateQuantity(parseInt(productId), delta, variantName);
                 break;
                 
             case 'sendWhatsAppOrder':
@@ -126,17 +127,21 @@ export class EventHandler {
      * Maneja agregar un producto al carrito
      * @param {number} productId - ID del producto
      */
-    handleAddToCart(productId) {
-        if (!productId || isNaN(productId)) {
-            console.error('EventHandler: ID de producto inválido para agregar al carrito:', productId);
-            return;
-        }
+    handleAddToCart(productId, variant = null) {
+        if (!productId || isNaN(productId)) return;
 
         const product = this.productManager.getById(productId);
         if (!product) return;
 
-        this.cartManager.addItem(product);
-        this.modalManager.showToast(`¡${product.name} agregado!`);
+        // Si tiene variantes y no se eligió ninguna, abrir el modal de detalle
+        if (product.variants?.length > 0 && !variant) {
+            this.handleShowProductDetail(productId);
+            return;
+        }
+
+        this.cartManager.addItem(product, variant);
+        const variantText = variant ? ` (${variant.name})` : '';
+        this.modalManager.showToast(`¡${product.name}${variantText} agregado!`);
     }
 
     handleToggleCart() {
@@ -148,9 +153,9 @@ export class EventHandler {
      * @param {number} productId - ID del producto
      * @param {number} delta - Cambio en la cantidad (+1, -1)
      */
-    handleUpdateQuantity(productId, delta) {
+    handleUpdateQuantity(productId, delta, variantName = null) {
         if (!productId || isNaN(productId) || !delta || isNaN(delta)) return;
-        this.cartManager.updateQuantity(productId, delta);
+        this.cartManager.updateQuantity(productId, delta, variantName || null);
     }
 
     handleGoToCheckout() {
@@ -220,8 +225,8 @@ export class EventHandler {
      */
     setupManagerCallbacks() {
         // Callback para agregar al carrito desde el modal de producto
-        this.modalManager.setAddToCartCallback((productId) => {
-            this.handleAddToCart(productId);
+        this.modalManager.setAddToCartCallback((productId, variant) => {
+            this.handleAddToCart(productId, variant);
         });
     }
 }

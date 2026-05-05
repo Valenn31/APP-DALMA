@@ -17,7 +17,11 @@ const productSchema = new mongoose.Schema({
     sku: { type: String, default: '' },
     weight: { type: Number, default: 0 },
     preparationTime: { type: Number, default: 0 },
-    allergens: { type: [String], default: [] }
+    allergens: { type: [String], default: [] },
+    variants: {
+        type: [{ name: { type: String, required: true }, price: { type: Number, default: null } }],
+        default: []
+    }
 }, { timestamps: true });
 
 module.exports = mongoose.model('Product', productSchema);

@@ -223,6 +223,21 @@ export class ProductsSection {
                             <div><label class="block text-sm font-medium text-gray-700 mb-2">Stock Mínimo</label><input type="number" id="productMinStock" name="minStock" min="0" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary"></div>
                         </div>
                         <div><label class="block text-sm font-medium text-gray-700 mb-2">Descripción *</label><textarea id="productDescription" name="description" rows="3" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary"></textarea></div>
+
+                        <!-- Variantes -->
+                        <div>
+                            <div class="flex items-center justify-between mb-2">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700">Variantes</label>
+                                    <p class="text-xs text-gray-400">Ej: Negro, Blanco. Dejá el precio vacío para usar el precio base.</p>
+                                </div>
+                                <button type="button" id="addVariantBtn" class="flex items-center gap-1 text-sm text-indigo-600 hover:text-indigo-800 font-medium">
+                                    <i class="fas fa-plus text-xs"></i> Agregar
+                                </button>
+                            </div>
+                            <div id="variantsList" class="space-y-2"></div>
+                        </div>
+
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-2">URL o Ruta de Imagen</label>
                             <input type="text" id="productImage" name="image" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary" placeholder="Ej: https://... o assets/img/postres/archivo.jpg">
@@ -303,6 +318,8 @@ export class ProductsSection {
             form.reset();
             form.removeAttribute('data-product-id');
             document.getElementById('productActive').checked = true;
+            const list = document.getElementById('variantsList');
+            if (list) list.innerHTML = '';
         }
         
         modal.classList.remove('hidden');
@@ -330,6 +347,31 @@ export class ProductsSection {
         document.getElementById('productImage').value = product.image || '';
         document.getElementById('productActive').checked = product.active !== false;
         this._updateImagePreview(product.image || '');
+
+        // Cargar variantes
+        const list = document.getElementById('variantsList');
+        if (list) {
+            list.innerHTML = '';
+            (product.variants || []).forEach(v => this._addVariantRow(v.name, v.price));
+        }
+    }
+
+    _addVariantRow(name = '', price = '') {
+        const list = document.getElementById('variantsList');
+        if (!list) return;
+        const row = document.createElement('div');
+        row.className = 'variant-row flex items-center gap-2';
+        row.innerHTML = `
+            <input type="text" placeholder="Nombre (ej: Negro)" value="${this._escapeHtml(name)}"
+                class="variant-name flex-1 px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-primary focus:border-primary">
+            <input type="number" placeholder="Precio (vacío = base)" value="${price != null && price !== '' ? price : ''}" min="0" step="0.01"
+                class="variant-price w-40 px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-primary focus:border-primary">
+            <button type="button" class="remove-variant p-2 text-red-400 hover:text-red-600 transition-colors">
+                <i class="fas fa-times"></i>
+            </button>
+        `;
+        row.querySelector('.remove-variant').addEventListener('click', () => row.remove());
+        list.appendChild(row);
     }
 
     async save() {
@@ -340,6 +382,13 @@ export class ProductsSection {
         const stockVal = document.getElementById('productStock').value;
         const minStockVal = document.getElementById('productMinStock').value;
         
+        const variants = [];
+        document.querySelectorAll('.variant-row').forEach(row => {
+            const vName = row.querySelector('.variant-name')?.value.trim();
+            const vPrice = row.querySelector('.variant-price')?.value.trim();
+            if (vName) variants.push({ name: vName, price: vPrice !== '' ? parseFloat(vPrice) : null });
+        });
+
         const productData = {
             name: document.getElementById('productName').value.trim(),
             sku: document.getElementById('productSku').value.trim(),
@@ -349,7 +398,8 @@ export class ProductsSection {
             minStock: minStockVal !== '' ? parseInt(minStockVal) : 0,
             description: document.getElementById('productDescription').value.trim(),
             image: document.getElementById('productImage').value.trim(),
-            active: document.getElementById('productActive').checked
+            active: document.getElementById('productActive').checked,
+            variants
         };
         
         if (!productData.name || !productData.category || !productData.price || !productData.description) {
@@ -513,6 +563,9 @@ export class ProductsSection {
         
         const imageInput = document.getElementById('productImage');
         if (imageInput) imageInput.addEventListener('input', (e) => this._updateImagePreview(e.target.value));
+
+        const addVariantBtn = document.getElementById('addVariantBtn');
+        if (addVariantBtn) addVariantBtn.addEventListener('click', () => this._addVariantRow());
         
         const modalEl = document.getElementById('productModal');
         if (modalEl) {

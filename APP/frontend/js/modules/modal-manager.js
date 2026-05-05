@@ -39,12 +39,64 @@ export class ModalManager {
         if (name) name.textContent = product.name;
         if (desc) desc.textContent = product.desc;
         if (price) price.textContent = `$${product.price.toLocaleString()}`;
-        
+
+        // Selector de variantes
+        const variantsContainer = document.getElementById('product-detail-variants');
+        if (variantsContainer) {
+            if (product.variants?.length > 0) {
+                variantsContainer.innerHTML = `
+                    <p class="text-chocolate/40 font-semibold uppercase tracking-widest text-[10px] mb-2">Variante</p>
+                    <div class="flex flex-wrap gap-2">
+                        ${product.variants.map((v, i) => `
+                            <button class="variant-btn px-4 py-2 rounded-xl border text-sm font-semibold transition-all ${i === 0 ? 'border-[#48332c] bg-[#48332c] text-white' : 'border-[#e8ddd0] text-chocolate'}"
+                                data-variant-name="${v.name}"
+                                data-variant-price="${v.price ?? ''}"
+                                ${i === 0 ? 'data-selected="true"' : ''}>
+                                ${v.name}
+                            </button>
+                        `).join('')}
+                    </div>
+                `;
+                // Precio inicial de la primera variante
+                const firstVariant = product.variants[0];
+                if (price && firstVariant.price != null) {
+                    price.textContent = `$${firstVariant.price.toLocaleString()}`;
+                }
+                // Listeners de selección
+                variantsContainer.querySelectorAll('.variant-btn').forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        variantsContainer.querySelectorAll('.variant-btn').forEach(b => {
+                            b.classList.remove('border-[#48332c]', 'bg-[#48332c]', 'text-white');
+                            b.classList.add('border-[#e8ddd0]', 'text-chocolate');
+                            b.removeAttribute('data-selected');
+                        });
+                        btn.classList.remove('border-[#e8ddd0]', 'text-chocolate');
+                        btn.classList.add('border-[#48332c]', 'bg-[#48332c]', 'text-white');
+                        btn.setAttribute('data-selected', 'true');
+                        const vPrice = btn.dataset.variantPrice;
+                        if (price) price.textContent = `$${(vPrice ? parseFloat(vPrice) : product.price).toLocaleString()}`;
+                    });
+                });
+            } else {
+                variantsContainer.innerHTML = '';
+            }
+        }
+
         // Configurar botón de agregar al carrito
         if (addBtn) {
             addBtn.onclick = () => {
-                // Notificar al componente padre que agregue al carrito
-                this.onAddToCart?.(productId);
+                let selectedVariant = null;
+                if (product.variants?.length > 0) {
+                    const activeBtn = variantsContainer?.querySelector('.variant-btn[data-selected="true"]');
+                    if (activeBtn) {
+                        const vPrice = activeBtn.dataset.variantPrice;
+                        selectedVariant = {
+                            name: activeBtn.dataset.variantName,
+                            price: vPrice !== '' ? parseFloat(vPrice) : null
+                        };
+                    }
+                }
+                this.onAddToCart?.(productId, selectedVariant);
                 this.closeProductDetail();
             };
         }
@@ -183,19 +235,20 @@ export class ModalManager {
      * @returns {string} HTML del item
      */
     createCartItemHTML(item) {
+        const variantName = item.selectedVariant?.name || '';
         return `
             <div class="flex items-center gap-4 bg-gray-50/50 p-4 rounded-3xl border border-[#f2e9dc]">
                 <img src="${item.img}" class="w-12 h-12 rounded-2xl object-cover" alt="${item.name}">
                 <div class="flex-1">
-                    <h4 class="font-bold text-chocolate text-xs leading-none mb-1">${item.name}</h4>
+                    <h4 class="font-bold text-chocolate text-xs leading-none mb-1">${item.name}${variantName ? ` <span class="font-normal text-chocolate/50">(${variantName})</span>` : ''}</h4>
                     <p class="text-verde font-black text-xs">$${(item.price * item.quantity).toLocaleString()}</p>
                 </div>
                 <div class="flex items-center gap-3 bg-white rounded-2xl px-3 py-2 border border-[#f2e9dc]">
-                    <button data-action="updateQuantity" data-product-id="${item.id}" data-delta="-1" class="text-chocolate cursor-pointer">
+                    <button data-action="updateQuantity" data-product-id="${item.id}" data-variant-name="${variantName}" data-delta="-1" class="text-chocolate cursor-pointer">
                         <i class="fa-solid fa-minus text-[8px]"></i>
                     </button>
                     <span class="font-black text-xs min-w-[15px] text-center">${item.quantity}</span>
-                    <button data-action="updateQuantity" data-product-id="${item.id}" data-delta="1" class="text-chocolate cursor-pointer">
+                    <button data-action="updateQuantity" data-product-id="${item.id}" data-variant-name="${variantName}" data-delta="1" class="text-chocolate cursor-pointer">
                         <i class="fa-solid fa-plus text-[8px]"></i>
                     </button>
                 </div>
