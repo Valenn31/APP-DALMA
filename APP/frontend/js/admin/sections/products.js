@@ -246,7 +246,7 @@ export class ProductsSection {
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-2">O subir imagen</label>
-                            <input type="file" id="imageInput" name="image" accept="image/*" class="mb-2">
+                            <input type="file" id="imageInput" name="image" accept="image/*,.heic,.heif" class="mb-2">
                             <button type="button" id="uploadImageBtn" class="bg-primary text-white px-3 py-1 rounded hover:bg-opacity-90">Subir Imagen</button>
                             <div id="imageUploadResult" class="mt-2 text-sm"></div>
                         </div>

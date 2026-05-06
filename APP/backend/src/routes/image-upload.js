@@ -6,7 +6,7 @@ const { verifyToken, requireAdmin } = require('../middleware/auth-middleware');
 
 const router = express.Router();
 
-const ALLOWED_MIME_TYPES = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+const ALLOWED_MIME_TYPES = ['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'image/heic', 'image/heif'];
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
 
 const storage = multer.diskStorage({
