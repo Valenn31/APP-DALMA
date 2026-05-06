@@ -86,14 +86,18 @@ export class CategoriesSection {
 
                     <!-- Acciones modo normal -->
                     <div class="normal-actions flex items-center gap-2 flex-shrink-0">
-                        <button data-action="toggleActive" data-cat-id="${cat.id}" title="${cat.active !== false ? 'Ocultar del catálogo' : 'Mostrar en catálogo'}"
-                            class="p-2 rounded-lg text-gray-500 hover:bg-gray-100 transition-colors text-sm">
-                            <i class="fas fa-${cat.active !== false ? 'eye' : 'eye-slash'}"></i>
-                        </button>
-                        <button data-action="toggleAvailable" data-cat-id="${cat.id}" title="${cat.available !== false ? 'Marcar no disponible' : 'Marcar disponible'}"
-                            class="p-2 rounded-lg text-gray-500 hover:bg-gray-100 transition-colors text-sm">
-                            <i class="fas fa-${cat.available !== false ? 'toggle-on text-blue-500' : 'toggle-off'}"></i>
-                        </button>
+                        <!-- Controles de estado: visible + disponible agrupados -->
+                        <div class="flex items-center border border-gray-200 rounded-lg overflow-hidden">
+                            <button data-action="toggleActive" data-cat-id="${cat.id}" title="${cat.active !== false ? 'Ocultar del catálogo' : 'Mostrar en catálogo'}"
+                                class="p-2 ${cat.active !== false ? 'text-gray-600' : 'text-gray-300'} hover:bg-gray-100 transition-colors text-sm border-r border-gray-200">
+                                <i class="fas fa-${cat.active !== false ? 'eye' : 'eye-slash'}"></i>
+                            </button>
+                            <button data-action="toggleAvailable" data-cat-id="${cat.id}" title="${cat.available !== false ? 'Marcar no disponible' : 'Marcar disponible'}"
+                                class="p-2 hover:bg-gray-100 transition-colors text-sm">
+                                <i class="fas fa-${cat.available !== false ? 'toggle-on text-blue-500' : 'toggle-off text-gray-300'}"></i>
+                            </button>
+                        </div>
+                        <!-- Acciones: editar y borrar -->
                         <button data-action="editCategory" data-cat-id="${cat.id}"
                             class="p-2 rounded-lg text-indigo-600 hover:bg-indigo-50 transition-colors text-sm">
                             <i class="fas fa-edit"></i>
