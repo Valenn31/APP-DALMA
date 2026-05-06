@@ -216,7 +216,8 @@ export class EventHandler {
         }
 
         const shippingCost = deliveryType === 'delivery' ? 300 : 0;
-        this.orderService.sendWhatsAppOrder(this.cartManager, config, address, paymentMethod, deliveryType, shippingCost);
+        const categories = this.productManager.categories || [];
+        this.orderService.sendWhatsAppOrder(this.cartManager, config, address, paymentMethod, deliveryType, shippingCost, categories);
         this.modalManager.showToast('¡Pedido enviado por WhatsApp!', 3000);
     }
 

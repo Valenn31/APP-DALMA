@@ -12,7 +12,7 @@ export class OrderService {
      * @param {Object} cartManager - Manejador del carrito
      * @param {Object} config - Configuración de la tienda (número de WhatsApp, etc.)
      */
-    sendWhatsAppOrder(cartManager, config, address = '', paymentMethod = '', deliveryType = '', shippingCost = 0) {
+    sendWhatsAppOrder(cartManager, config, address = '', paymentMethod = '', deliveryType = '', shippingCost = 0, categories = []) {
         if (!cartManager || cartManager.isEmpty()) {
             console.warn('OrderService: Carrito vacío, no se puede enviar pedido');
             return;
@@ -29,7 +29,7 @@ export class OrderService {
 
         try {
             // Formatear mensaje del pedido
-            const message = this.formatOrderMessage(cartManager, storeConfig, address, paymentMethod, deliveryType, shippingCost);
+            const message = this.formatOrderMessage(cartManager, storeConfig, address, paymentMethod, deliveryType, shippingCost, categories);
             
             // Crear URL de WhatsApp
             const whatsappUrl = this.buildWhatsAppUrl(message, whatsappNumber);
@@ -53,7 +53,7 @@ export class OrderService {
      * @param {Object} storeConfig - Configuración de la tienda
      * @returns {string} Mensaje formateado
      */
-    formatOrderMessage(cartManager, storeConfig = {}, address = '', paymentMethod = '', deliveryType = '', shippingCost = 0) {
+    formatOrderMessage(cartManager, storeConfig = {}, address = '', paymentMethod = '', deliveryType = '', shippingCost = 0, categories = []) {
         const cart = cartManager.getCart();
         const subtotal = cartManager.getTotal();
         const finalTotal = subtotal + shippingCost;
@@ -92,7 +92,7 @@ export class OrderService {
         lines.push('─'.repeat(30));
         lines.push('');
 
-        const categoryLabels = { chocolates: 'Chocolates', postres: 'Postres' };
+        const categoryLabels = Object.fromEntries((categories || []).map(c => [c.id, c.name]));
         const grouped = cart.reduce((acc, item) => {
             const cat = item.category || 'otros';
             if (!acc[cat]) acc[cat] = [];

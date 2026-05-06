@@ -17,8 +17,8 @@ class DataService {
                 minimumOrder: 0
             },
             categories: [
-                { id: 'chocolates', name: 'Chocolates', description: 'Premium', active: true, image: 'https://images.unsplash.com/photo-1548907040-4baa42d10919?auto=format&fit=crop&q=80&w=800' },
-                { id: 'postres', name: 'Postres', description: 'Artesanal', active: true, image: 'https://images.unsplash.com/photo-1551024506-0bccd828d307?auto=format&fit=crop&q=80&w=800' }
+                { id: 'chocolates', name: 'Chocolates', description: '', active: true, available: true, order: 0, image: 'assets/img/postres/categoria_chocolates.jpeg' },
+                { id: 'postres',    name: 'Postres',    description: '', active: true, available: true, order: 1, image: 'assets/img/postres/categoria_postres.jpeg' }
             ],
             business: {
                 hours: { open: '10:00', close: '20:00', timezone: 'America/Argentina/Buenos_Aires' },
@@ -86,6 +86,15 @@ class DataService {
         const config = {};
         for (const c of configs) {
             config[c.key] = c.value;
+        }
+        // Migración: normalizar categorías al nuevo formato (active=visibilidad, available=disponible, order)
+        if (config.categories) {
+            config.categories = config.categories.map((cat, i) => ({
+                available: cat.available ?? (cat.active !== false),
+                order:     cat.order     ?? i,
+                active:    true,
+                ...cat,
+            }));
         }
         return config;
     }

@@ -9,6 +9,7 @@ import { SidebarManager } from './admin/sidebar.js';
 import { DashboardSection } from './admin/sections/dashboard.js';
 import { ProductsSection } from './admin/sections/products.js';
 import { ConfigSection } from './admin/sections/config.js';
+import { CategoriesSection } from './admin/sections/categories.js';
 
 class AdminApp {
     constructor() {
@@ -19,6 +20,7 @@ class AdminApp {
         this.dashboard = new DashboardSection(this.api);
         this.products = new ProductsSection(this.api, this.notify);
         this.configSection = new ConfigSection(this.api, this.notify);
+        this.categoriesSection = new CategoriesSection(this.api, this.notify);
 
         this.initializeApp();
         this.setupEventListeners();
@@ -182,6 +184,9 @@ class AdminApp {
                 case 'stock':
                     content = '<div class="text-center py-12"><h2 class="text-2xl font-bold text-gray-600">Sección de Stock</h2><p class="text-gray-500 mt-2">En desarrollo...</p></div>';
                     break;
+                case 'categories':
+                    content = await this.categoriesSection.render();
+                    break;
                 case 'config':
                     content = await this.configSection.render();
                     break;
@@ -193,6 +198,9 @@ class AdminApp {
             
             if (sectionName === 'products') {
                 this.products.initializeEvents();
+            }
+            if (sectionName === 'categories') {
+                this.categoriesSection.initializeEvents();
             }
             if (sectionName === 'config') {
                 this.configSection.initializeEvents();

@@ -32,27 +32,7 @@ class App {
             return;
         }
 
-        const allCategories = this.productManager.categories;
-        const bothClosed = allCategories.length > 0 && allCategories.every(cat => cat.active === false);
-
-        if (bothClosed) {
-            document.getElementById('store-closed-view')?.classList.remove('hidden');
-            document.getElementById('categories-view')?.classList.add('hidden');
-            document.getElementById('floating-cart')?.classList.add('hidden');
-        } else {
-            allCategories.forEach(cat => {
-                if (cat.active === false) {
-                    const card = document.getElementById(`category-card-${cat.id}`);
-                    if (!card) return;
-                    card.removeAttribute('data-action');
-                    card.removeAttribute('data-category');
-                    card.classList.add('opacity-50', 'cursor-not-allowed');
-                    card.style.pointerEvents = 'none';
-                    const subtitle = document.getElementById(`category-subtitle-${cat.id}`);
-                    if (subtitle) subtitle.textContent = 'No disponible';
-                }
-            });
-        }
+        this.renderCategoryCards();
     }
 
     /**
@@ -176,6 +156,47 @@ class App {
             console.error('App: Error al refrescar:', error);
             this.handleError(error);
         }
+    }
+
+    renderCategoryCards() {
+        const container = document.getElementById('categories-container');
+        if (!container) return;
+
+        const allCategories = this.productManager.categories;
+        const sorted = [...allCategories].sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
+        const visible = sorted.filter(cat => cat.active !== false);
+        const allUnavailable = visible.length > 0 && visible.every(cat => cat.available === false);
+
+        if (allUnavailable || visible.length === 0) {
+            document.getElementById('store-closed-view')?.classList.remove('hidden');
+            document.getElementById('categories-view')?.classList.add('hidden');
+            document.getElementById('floating-cart')?.classList.add('hidden');
+            return;
+        }
+
+        container.innerHTML = visible.map(cat => {
+            const ok = cat.available !== false;
+            return `
+                <div id="category-card-${cat.id}"
+                     ${ok ? `data-action="selectCategory" data-category="${cat.id}"` : ''}
+                     class="category-card flex-1 rounded-[28px] overflow-hidden flex flex-col ${ok ? 'cursor-pointer' : 'opacity-50 cursor-not-allowed'}"
+                     ${ok ? '' : 'style="pointer-events:none"'}>
+                    <div class="flex-1 relative overflow-hidden">
+                        <img src="${cat.image ? (cat.image.startsWith('http') ? cat.image : '/' + cat.image) : ''}" class="absolute inset-0 w-full h-full object-cover" alt="${cat.name}">
+                    </div>
+                    <div class="category-card-info px-6 py-4 flex items-center justify-between">
+                        <div>
+                            <h3 class="font-display text-2xl font-bold text-chocolate">${cat.name}</h3>
+                            <p id="category-subtitle-${cat.id}" class="text-[11px] text-chocolate/40 mt-0.5 font-medium tracking-wide">
+                                ${ok ? 'Tocá para ver más' : 'No disponible'}
+                            </p>
+                        </div>
+                        <div class="w-10 h-10 rounded-full bg-[#f2e9dc] flex items-center justify-center flex-shrink-0">
+                            <i class="fa-solid fa-chevron-right text-chocolate text-xs"></i>
+                        </div>
+                    </div>
+                </div>`;
+        }).join('');
     }
 
     cleanup() {

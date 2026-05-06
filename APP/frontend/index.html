@@ -38,42 +38,8 @@
             <h2 class="font-display text-[2rem] font-bold text-chocolate leading-tight">¿Qué vas a<br>elegir hoy?</h2>
         </div>
 
-        <div class="flex flex-col gap-4 flex-1">
-            <!-- Card Chocolates -->
-            <div id="category-card-chocolates" data-action="selectCategory" data-category="chocolates"
-                 class="category-card flex-1 rounded-[28px] overflow-hidden cursor-pointer flex flex-col">
-                <div class="flex-1 relative overflow-hidden">
-                    <img src="/assets/img/postres/categoria_chocolates.jpeg"
-                         class="absolute inset-0 w-full h-full object-cover">
-                </div>
-                <div class="category-card-info px-6 py-4 flex items-center justify-between">
-                    <div>
-                        <h3 class="font-display text-2xl font-bold text-chocolate">Chocolates</h3>
-                        <p id="category-subtitle-chocolates" class="text-[11px] text-chocolate/40 mt-0.5 font-medium tracking-wide">Tocá para ver más</p>
-                    </div>
-                    <div class="w-10 h-10 rounded-full bg-[#f2e9dc] flex items-center justify-center flex-shrink-0">
-                        <i class="fa-solid fa-chevron-right text-chocolate text-xs"></i>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Card Postres -->
-            <div id="category-card-postres" data-action="selectCategory" data-category="postres"
-                 class="category-card flex-1 rounded-[28px] overflow-hidden cursor-pointer flex flex-col">
-                <div class="flex-1 relative overflow-hidden">
-                    <img src="/assets/img/postres/categoria_postres.jpeg"
-                         class="absolute inset-0 w-full h-full object-cover" style="object-position: center 80%;">
-                </div>
-                <div class="category-card-info px-6 py-4 flex items-center justify-between">
-                    <div>
-                        <h3 class="font-display text-2xl font-bold text-chocolate">Postres</h3>
-                        <p id="category-subtitle-postres" class="text-[11px] text-chocolate/40 mt-0.5 font-medium tracking-wide">Tocá para ver más</p>
-                    </div>
-                    <div class="w-10 h-10 rounded-full bg-[#f2e9dc] flex items-center justify-center flex-shrink-0">
-                        <i class="fa-solid fa-chevron-right text-chocolate text-xs"></i>
-                    </div>
-                </div>
-            </div>
+        <div id="categories-container" class="flex flex-col gap-4 flex-1">
+            <!-- Renderizado dinámico via JS -->
         </div>
 
     </section>

@@ -10,8 +10,12 @@ export class ProductsSection {
     // --- Rendering ---
 
     async render() {
-        const productsResponse = await this.apiClient.fetchWithAuth('/products?includeInactive=true');
+        const [productsResponse, configResponse] = await Promise.all([
+            this.apiClient.fetchWithAuth('/products?includeInactive=true'),
+            this.apiClient.fetchWithAuth('/config')
+        ]);
         const products = productsResponse?.data || [];
+        this._categories = (configResponse?.data?.categories || []).sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
 
         return `
             <div class="space-y-4 sm:space-y-6">
@@ -75,8 +79,7 @@ export class ProductsSection {
                     <div class="grid grid-cols-2 gap-3 sm:flex sm:space-x-3">
                         <select id="filterCategory" class="px-3 py-3 sm:px-4 sm:py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary text-base">
                             <option value="">Todas las categorías</option>
-                            <option value="postres">Postres</option>
-                            <option value="chocolates">Chocolates</option>
+                            ${(this._categories || []).map(c => `<option value="${c.id}">${c.name}</option>`).join('')}
                         </select>
                         <select id="filterStatus" class="px-3 py-3 sm:px-4 sm:py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary text-base">
                             <option value="">Todos los estados</option>
@@ -215,7 +218,7 @@ export class ProductsSection {
                             <div><label class="block text-sm font-medium text-gray-700 mb-2">Categoría *</label>
                                 <select id="productCategory" name="category" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary">
                                     <option value="">Seleccionar categoría</option>
-                                    <option value="postres">Postres</option><option value="chocolates">Chocolates</option>
+                                    ${(this._categories || []).map(c => `<option value="${c.id}">${c.name}</option>`).join('')}
                                 </select>
                             </div>
                             <div><label class="block text-sm font-medium text-gray-700 mb-2">Precio *</label><input type="number" id="productPrice" name="price" step="0.01" min="0" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary"></div>

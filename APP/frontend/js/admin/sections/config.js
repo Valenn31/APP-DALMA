@@ -17,34 +17,6 @@ export class ConfigSection {
             <div class="p-6 max-w-lg mx-auto">
                 <h1 class="text-2xl font-black text-gray-800 mb-6">Configuración</h1>
 
-                <!-- Card: Disponibilidad de categorías -->
-                <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 mb-4">
-                    <h2 class="text-lg font-bold text-gray-700 mb-1">Disponibilidad de categorías</h2>
-                    <p class="text-gray-400 text-sm mb-4">Activá o desactivá cada categoría. Si las dos están cerradas, el catálogo muestra "Tienda cerrada".</p>
-                    <div class="flex flex-col divide-y divide-gray-50">
-                        ${(this.currentConfig?.categories || []).map(cat => {
-                            const active = cat.active !== false;
-                            const icon = cat.id === 'chocolates' ? 'fa-cookie-bite' : 'fa-ice-cream';
-                            return `
-                            <div class="flex items-center justify-between py-4 first:pt-0 last:pb-0">
-                                <div class="flex items-center gap-3">
-                                    <div class="w-10 h-10 rounded-xl flex items-center justify-center ${active ? 'bg-green-100' : 'bg-gray-100'}">
-                                        <i class="fa-solid ${icon} ${active ? 'text-green-600' : 'text-gray-400'}"></i>
-                                    </div>
-                                    <div>
-                                        <p class="font-bold text-gray-700 text-sm">${cat.name}</p>
-                                        <p class="text-xs font-medium ${active ? 'text-green-500' : 'text-gray-400'}">${active ? 'Disponible' : 'No disponible'}</p>
-                                    </div>
-                                </div>
-                                <button data-toggle-category="${cat.id}"
-                                    class="py-2 px-4 rounded-xl font-bold text-sm transition-all active:scale-95 ${active ? 'bg-red-100 text-red-500 hover:bg-red-200' : 'bg-green-100 text-green-600 hover:bg-green-200'}">
-                                    ${active ? 'Cerrar' : 'Abrir'}
-                                </button>
-                            </div>`;
-                        }).join('')}
-                    </div>
-                </div>
-
                 <!-- Card: Número de WhatsApp -->
                 <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
                     <h2 class="text-lg font-bold text-gray-700 mb-1">Número de WhatsApp</h2>
@@ -77,42 +49,11 @@ export class ConfigSection {
     }
 
     initializeEvents() {
-        document.querySelectorAll('[data-toggle-category]').forEach(btn => {
-            btn.addEventListener('click', () => this.toggleCategory(btn.dataset.toggleCategory));
-        });
-
         const saveBtn = document.getElementById('save-whatsapp-btn');
         if (saveBtn) saveBtn.addEventListener('click', () => this.saveWhatsAppNumber());
 
         const testBtn = document.getElementById('test-whatsapp-btn');
         if (testBtn) testBtn.addEventListener('click', () => this.testWhatsAppNumber());
-    }
-
-    async toggleCategory(categoryId) {
-        const categories = this.currentConfig?.categories || [];
-        const updatedCategories = categories.map(cat =>
-            cat.id === categoryId ? { ...cat, active: !cat.active } : cat
-        );
-
-        const res = await this.api.fetchWithAuth('/config', {
-            method: 'PUT',
-            body: JSON.stringify({ categories: updatedCategories })
-        });
-
-        if (!res?.success) {
-            this.notify.show('Error', 'No se pudo actualizar la categoría', 'error');
-            return;
-        }
-
-        this.currentConfig.categories = updatedCategories;
-        const cat = updatedCategories.find(c => c.id === categoryId);
-        this.notify.show('Listo', `${cat.name} ahora está ${cat.active ? 'disponible' : 'no disponible'}`, 'success');
-
-        const mainContent = document.getElementById('mainContent');
-        if (mainContent) {
-            mainContent.innerHTML = await this.render();
-            this.initializeEvents();
-        }
     }
 
     async saveWhatsAppNumber() {
