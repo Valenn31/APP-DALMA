@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git add *)",
+      "Bash(git commit -m ' *)",
+      "Bash(git -C \"c:/Mis cosas GIT/pagina-vortech/APP-DALMA\" status)",
+      "Bash(git -C \"c:/Mis cosas GIT/pagina-vortech/APP-DALMA\" diff HEAD)",
+      "Bash(git -C \"c:/Mis cosas GIT/pagina-vortech/APP-DALMA\" log --oneline -5)"
+    ]
+  }
+}
