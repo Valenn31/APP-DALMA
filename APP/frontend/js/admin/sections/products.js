@@ -280,14 +280,7 @@ export class ProductsSection {
             formData.append('image', fileInput.files[0]);
             resultDiv.textContent = 'Subiendo...';
             try {
-                const API_BASE_URL = (typeof window !== 'undefined' && window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1')
-                    ? 'https://unacucharitamas.onrender.com/api'
-                    : '/api';
-                const res = await fetch(`${API_BASE_URL}/images/upload`, {
-                    method: 'POST',
-                    body: formData
-                });
-                const data = await res.json();
+                const data = await this.apiClient.uploadFile('/images/upload', formData);
                 if (data.success) {
                     resultDiv.innerHTML = 'Imagen subida: <code>' + data.imageUrl + '</code><br><img src="/' + data.imageUrl + '" width="100">';
                     // Poner la URL devuelta en el campo de imagen

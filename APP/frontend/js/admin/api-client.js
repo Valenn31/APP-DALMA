@@ -7,6 +7,24 @@ export class ApiClient {
     /**
      * Realiza peticiones HTTP autenticadas
      */
+    async uploadFile(endpoint, formData) {
+        try {
+            const response = await fetch(`${CONFIG.API_BASE_URL}${endpoint}`, {
+                method: 'POST',
+                headers: { 'Authorization': `Bearer ${appState.token}` },
+                body: formData
+            });
+            if (response.status === 401) {
+                window.dispatchEvent(new CustomEvent('auth:expired'));
+                return null;
+            }
+            return await response.json();
+        } catch (error) {
+            console.error('Error en upload:', error);
+            throw error;
+        }
+    }
+
     async fetchWithAuth(endpoint, options = {}) {
         const config = {
             ...options,
