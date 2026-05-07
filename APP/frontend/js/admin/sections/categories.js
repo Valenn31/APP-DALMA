@@ -250,6 +250,12 @@ export class CategoriesSection {
             const btn = e.target.closest('[data-assign-product]');
             if (btn) this._assignProductToCategory(parseInt(btn.dataset.assignProduct));
         });
+
+        // Delegación para quitar producto de categoría (panel expandido)
+        document.getElementById('categoriesList')?.addEventListener('click', e => {
+            const btn = e.target.closest('[data-remove-product]');
+            if (btn) this._removeProductFromCategory(parseInt(btn.dataset.removeProduct), btn.dataset.catPanel);
+        });
     }
 
     // ─── Orden ─────────────────────────────────────────────────────────────────
@@ -478,6 +484,10 @@ export class CategoriesSection {
                     <p class="text-xs text-gray-400">$${(p.price || 0).toLocaleString()}</p>
                 </div>
                 <span class="text-xs ${p.active !== false ? 'text-green-500' : 'text-gray-400'}">${p.active !== false ? 'Activo' : 'Inactivo'}</span>
+                <button data-remove-product="${p.id}" data-cat-panel="${catId}"
+                    class="p-1.5 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors flex-shrink-0" title="Quitar de esta categoría">
+                    <i class="fas fa-times text-xs"></i>
+                </button>
             </div>`).join('')}</div>`;
     }
 
@@ -528,6 +538,18 @@ export class CategoriesSection {
     _filterAssignList(term) {
         const filtered = this.allProducts.filter(p => p.name.toLowerCase().includes(term.toLowerCase()));
         this._renderAssignList(filtered);
+    }
+
+    async _removeProductFromCategory(productId, catId) {
+        const res = await this.api.fetchWithAuth(`/products/${productId}`, {
+            method: 'PUT',
+            body: JSON.stringify({ category: '' })
+        });
+        if (!res?.success) { this.notify.show('Error', 'No se pudo quitar el producto', 'error'); return; }
+        this.notify.show('Listo', 'Producto quitado de la categoría', 'success');
+        // Recargar el panel de esa categoría
+        await this._toggleProductsPanel(catId); // cierra
+        await this._toggleProductsPanel(catId); // vuelve a abrir con datos frescos
     }
 
     async _assignProductToCategory(productId) {
