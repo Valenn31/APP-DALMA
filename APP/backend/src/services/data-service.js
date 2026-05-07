@@ -14,7 +14,8 @@ class DataService {
                 whatsappNumber: '5493471671286',
                 currency: 'ARS',
                 currencySymbol: '$',
-                minimumOrder: 0
+                minimumOrder: 0,
+                deliveryCost: 300
             },
             categories: [
                 { id: 'chocolates', name: 'Chocolates', description: 'Premium', active: true, image: 'https://images.unsplash.com/photo-1548907040-4baa42d10919?auto=format&fit=crop&q=80&w=800' },

@@ -45,6 +45,26 @@ export class ConfigSection {
                     </div>
                 </div>
 
+                <!-- Card: Costo de envío -->
+                <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 mb-4">
+                    <h2 class="text-lg font-bold text-gray-700 mb-1">Costo de envío</h2>
+                    <p class="text-gray-400 text-sm mb-4">
+                        Monto que se suma al total cuando el cliente elige Delivery.
+                    </p>
+                    <div class="flex gap-2">
+                        <div class="flex items-center flex-1 rounded-xl border border-gray-200 overflow-hidden focus-within:ring-2 focus-within:ring-[#48332c]/20">
+                            <span class="px-3 py-3 bg-gray-50 text-gray-400 text-sm font-mono border-r border-gray-200 select-none">$</span>
+                            <input id="delivery-cost-input" type="number" min="0" step="1"
+                                value="${this.currentConfig?.store?.deliveryCost ?? 300}"
+                                class="flex-1 px-3 py-3 text-sm focus:outline-none bg-white">
+                        </div>
+                        <button id="save-delivery-cost-btn"
+                            class="py-3 px-4 rounded-xl font-bold text-white bg-[#48332c] hover:bg-[#3a2820] transition-all active:scale-95 text-sm">
+                            <i class="fa-solid fa-floppy-disk mr-2"></i>Guardar
+                        </button>
+                    </div>
+                </div>
+
                 <!-- Card: Número de WhatsApp -->
                 <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
                     <h2 class="text-lg font-bold text-gray-700 mb-1">Número de WhatsApp</h2>
@@ -81,6 +101,9 @@ export class ConfigSection {
             btn.addEventListener('click', () => this.toggleCategory(btn.dataset.toggleCategory));
         });
 
+        const saveDeliveryBtn = document.getElementById('save-delivery-cost-btn');
+        if (saveDeliveryBtn) saveDeliveryBtn.addEventListener('click', () => this.saveDeliveryCost());
+
         const saveBtn = document.getElementById('save-whatsapp-btn');
         if (saveBtn) saveBtn.addEventListener('click', () => this.saveWhatsAppNumber());
 
@@ -113,6 +136,35 @@ export class ConfigSection {
             mainContent.innerHTML = await this.render();
             this.initializeEvents();
         }
+    }
+
+    async saveDeliveryCost() {
+        const input = document.getElementById('delivery-cost-input');
+        const value = parseInt(input?.value);
+
+        if (isNaN(value) || value < 0) {
+            this.notify.show('Error', 'Ingresá un valor válido (número entero positivo)', 'error');
+            return;
+        }
+
+        const btn = document.getElementById('save-delivery-cost-btn');
+        if (btn) { btn.disabled = true; btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-2"></i>Guardando...'; }
+
+        const currentStore = this.currentConfig?.store || {};
+        const res = await this.api.fetchWithAuth('/config', {
+            method: 'PUT',
+            body: JSON.stringify({ store: { ...currentStore, deliveryCost: value } })
+        });
+
+        if (!res?.success) {
+            this.notify.show('Error', 'No se pudo guardar el costo de envío', 'error');
+            if (btn) { btn.disabled = false; btn.innerHTML = '<i class="fa-solid fa-floppy-disk mr-2"></i>Guardar'; }
+            return;
+        }
+
+        if (this.currentConfig?.store) this.currentConfig.store.deliveryCost = value;
+        this.notify.show('Listo', `Costo de envío actualizado a $${value.toLocaleString()}`, 'success');
+        if (btn) { btn.disabled = false; btn.innerHTML = '<i class="fa-solid fa-floppy-disk mr-2"></i>Guardar'; }
     }
 
     async saveWhatsAppNumber() {

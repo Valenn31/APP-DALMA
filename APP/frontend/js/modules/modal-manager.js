@@ -184,9 +184,12 @@ export class ModalManager {
 
         const subtotal = this.cartManager.getTotal();
         const deliveryTypeInput = document.querySelector('input[name="delivery-type"]:checked');
-        const shippingCost = deliveryTypeInput?.value === 'delivery' ? 300 : 0;
+        const deliveryCost = this.productManager.getStoreConfig()?.deliveryCost ?? 300;
+        const shippingCost = deliveryTypeInput?.value === 'delivery' ? deliveryCost : 0;
 
         if (shippingRow) shippingRow.classList.toggle('hidden', shippingCost === 0);
+        const shippingLabel = document.getElementById('shipping-cost-label');
+        if (shippingLabel) shippingLabel.textContent = `+ $${deliveryCost.toLocaleString()}`;
         checkoutTotalEl.innerText = `$${(subtotal + shippingCost).toLocaleString()}`;
     }
 
