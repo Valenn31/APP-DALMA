@@ -49,7 +49,8 @@ class ConfigController {
                 businessHours: config.business?.hours,
                 categories: config.categories,
                 currency: storeConfig.currencySymbol || '$',
-                maintenanceMode: config.business?.maintenanceMode || false
+                maintenanceMode: config.business?.maintenanceMode || false,
+                deliveryCost: storeConfig.deliveryCost ?? 300
             };
             
             res.json({
