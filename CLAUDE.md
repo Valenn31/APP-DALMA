@@ -111,6 +111,7 @@ const src = image.startsWith('http') ? image : '/' + image;
 
 ### Deployment
 
-- **Render** (producción actual): deploy manual desde el panel. La app duerme en plan gratuito — usar UptimeRobot con ping cada 5 min para mantenerla activa.
+- **Render** (producción actual, plan gratuito): deploy manual desde el panel. La app duerme tras inactividad — usar UptimeRobot con ping cada 5 min para mantenerla activa. El filesystem es efímero: cualquier archivo escrito en runtime (ej. imágenes subidas) se pierde en el siguiente deploy.
+- **MongoDB Atlas** (base de datos): cluster gratuito (M0). La URI de conexión va en `MONGODB_URI` en el `.env` y en las variables de entorno de Render.
 - **Vercel**: configurado en `vercel.json` pero no es el deploy activo.
 - **Ramas:** `main` = producción estable. `dev` = trabajo en curso (no deployeado automáticamente).

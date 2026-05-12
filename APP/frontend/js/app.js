@@ -12,6 +12,7 @@ class App {
         this.cartManager = null;
         this.uiManager = null;
         this.isInitialized = false;
+        this.lastRefresh = null;
         
         this.init();
     }
@@ -26,6 +27,7 @@ class App {
             this.setupApplication();
             this.hideLoading();
             this.isInitialized = true;
+            this.lastRefresh = Date.now();
         } catch (error) {
             console.error('App: Error al inicializar:', error);
             this.handleInitializationError(error);
@@ -77,9 +79,13 @@ class App {
      * Configura eventos de la ventana
      */
     setupWindowEvents() {
+        const REFRESH_THRESHOLD_MS = 5 * 60 * 1000; // 5 minutos
         document.addEventListener('visibilitychange', () => {
             if (document.visibilityState === 'visible' && this.isInitialized) {
-                this.refresh();
+                const elapsed = Date.now() - (this.lastRefresh ?? 0);
+                if (elapsed >= REFRESH_THRESHOLD_MS) {
+                    this.refresh();
+                }
             }
         });
 
@@ -152,6 +158,7 @@ class App {
         try {
             await this.productManager.loadProducts();
             this.uiManager.refresh();
+            this.lastRefresh = Date.now();
         } catch (error) {
             console.error('App: Error al refrescar:', error);
             this.handleError(error);
@@ -174,20 +181,26 @@ class App {
             return;
         }
 
+        const esc = str => String(str ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+
         container.innerHTML = visible.map(cat => {
             const ok = cat.available !== false;
+            const id = esc(cat.id);
+            const name = esc(cat.name);
+            const rawSrc = cat.image ? (cat.image.startsWith('http') ? cat.image : '/' + cat.image) : '';
+            const imgSrc = esc(rawSrc);
             return `
-                <div id="category-card-${cat.id}"
-                     ${ok ? `data-action="selectCategory" data-category="${cat.id}"` : ''}
+                <div id="category-card-${id}"
+                     ${ok ? `data-action="selectCategory" data-category="${id}"` : ''}
                      class="category-card flex-1 rounded-[28px] overflow-hidden flex flex-col ${ok ? 'cursor-pointer' : 'opacity-50 cursor-not-allowed'}"
                      ${ok ? '' : 'style="pointer-events:none"'}>
                     <div class="flex-1 relative overflow-hidden">
-                        <img src="${cat.image ? (cat.image.startsWith('http') ? cat.image : '/' + cat.image) : ''}" class="absolute inset-0 w-full h-full object-cover" alt="${cat.name}">
+                        <img src="${imgSrc}" class="absolute inset-0 w-full h-full object-cover" alt="${name}">
                     </div>
                     <div class="category-card-info px-6 py-4 flex items-center justify-between">
                         <div>
-                            <h3 class="font-display text-2xl font-bold text-chocolate">${cat.name}</h3>
-                            <p id="category-subtitle-${cat.id}" class="text-[11px] text-chocolate/40 mt-0.5 font-medium tracking-wide">
+                            <h3 class="font-display text-2xl font-bold text-chocolate">${name}</h3>
+                            <p id="category-subtitle-${id}" class="text-[11px] text-chocolate/40 mt-0.5 font-medium tracking-wide">
                                 ${ok ? 'Tocá para ver más' : 'No disponible'}
                             </p>
                         </div>

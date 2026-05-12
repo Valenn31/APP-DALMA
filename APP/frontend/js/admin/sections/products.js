@@ -285,7 +285,13 @@ export class ProductsSection {
             try {
                 const data = await this.apiClient.uploadFile('/images/upload', formData);
                 if (data.success) {
-                    resultDiv.innerHTML = 'Imagen subida: <code>' + data.imageUrl + '</code><br><img src="/' + data.imageUrl + '" width="100">';
+                    resultDiv.textContent = '';
+                    const code = document.createElement('code');
+                    code.textContent = data.imageUrl;
+                    const img = document.createElement('img');
+                    img.src = '/' + data.imageUrl;
+                    img.width = 100;
+                    resultDiv.append('Imagen subida: ', code, document.createElement('br'), img);
                     // Poner la URL devuelta en el campo de imagen
                     document.getElementById('productImage').value = data.imageUrl;
                     this._updateImagePreview(data.imageUrl);

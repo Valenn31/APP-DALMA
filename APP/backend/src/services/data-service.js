@@ -45,10 +45,19 @@ class DataService {
     }
 
     async createProduct(productData) {
-        const lastProduct = await Product.findOne().sort({ id: -1 }).lean();
-        const newId = (lastProduct?.id || 0) + 1;
+        // Lee el max actual solo para sembrar el contador la primera vez.
+        // El $ifNull en el pipeline usa este valor solo si el doc de contador no existe.
+        // Una vez que existe, cada llamada incrementa atómicamente — sin race condition.
+        const lastProduct = await Product.findOne().sort({ id: -1 }).select('id').lean();
+        const currentMax = lastProduct?.id ?? 0;
 
-        const product = new Product({ id: newId, ...productData });
+        const counter = await Config.findOneAndUpdate(
+            { key: '_productIdCounter' },
+            [{ $set: { value: { $add: [{ $ifNull: ['$value', currentMax] }, 1] } } }],
+            { upsert: true, new: true }
+        );
+
+        const product = new Product({ id: counter.value, ...productData });
         const saved = await product.save();
         return this._cleanDoc(saved.toObject());
     }
@@ -86,15 +95,17 @@ class DataService {
         }
         const config = {};
         for (const c of configs) {
-            config[c.key] = c.value;
+            if (!c.key.startsWith('_')) config[c.key] = c.value;
         }
         // Migración: normalizar categorías al nuevo formato (active=visibilidad, available=disponible, order)
         if (config.categories) {
             config.categories = config.categories.map((cat, i) => ({
-                available: cat.available ?? (cat.active !== false),
-                order:     cat.order     ?? i,
-                active:    true,
                 ...cat,
+                available: cat.available ?? (cat.active !== false),
+                order:     cat.order ?? i,
+                // Documentos viejos usaban active=false para "no disponible".
+                // En el esquema nuevo eso es available=false; active siempre es true para esos docs.
+                ...(cat.available === undefined && { active: true }),
             }));
         }
         return config;

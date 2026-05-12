@@ -55,7 +55,7 @@ class ProductController {
         try {
             const { id } = req.params;
             
-            if (!id || isNaN(parseInt(id))) {
+            if (!id || !/^\d+$/.test(id)) {
                 return res.status(400).json({
                     success: false,
                     error: 'ID de producto inválido'
@@ -130,7 +130,7 @@ class ProductController {
         try {
             const { id } = req.params;
             
-            if (!id || isNaN(parseInt(id))) {
+            if (!id || !/^\d+$/.test(id)) {
                 return res.status(400).json({
                     success: false,
                     error: 'ID de producto inválido'
@@ -182,7 +182,7 @@ class ProductController {
             const { id } = req.params;
             const { stock, operation } = req.body; // operation: 'set', 'add', 'subtract'
             
-            if (!id || isNaN(parseInt(id))) {
+            if (!id || !/^\d+$/.test(id)) {
                 return res.status(400).json({
                     success: false,
                     error: 'ID de producto inválido'
@@ -240,7 +240,7 @@ class ProductController {
             const { id } = req.params;
             const { permanent } = req.query;
             
-            if (!id || isNaN(parseInt(id))) {
+            if (!id || !/^\d+$/.test(id)) {
                 return res.status(400).json({
                     success: false,
                     error: 'ID de producto inválido'

@@ -1,3 +1,4 @@
+const mongoose = require('mongoose');
 const { getInstance: getDataService } = require('../services/data-service');
 
 class ConfigController {
@@ -85,7 +86,12 @@ class ConfigController {
                 });
             }
             
-            const updatedConfig = await this.dataService.updateConfig(configUpdates);
+            const ALLOWED_KEYS = ['store', 'categories', 'business', 'stock'];
+            const filtered = Object.fromEntries(
+                Object.entries(configUpdates).filter(([k]) => ALLOWED_KEYS.includes(k))
+            );
+
+            const updatedConfig = await this.dataService.updateConfig(filtered);
             
             res.json({
                 success: true,
@@ -160,38 +166,13 @@ class ConfigController {
      * GET /api/config/health
      */
     async getHealthCheck(req, res) {
-        try {
-            const metadata = await this.dataService.getMetadata();
-            const config = await this.dataService.getConfig();
-            const products = await this.dataService.getProducts();
-            
-            const healthStatus = {
-                status: 'healthy',
-                version: metadata.version || '1.0.0',
-                environment: process.env.NODE_ENV || 'development',
-                uptime: process.uptime(),
-                timestamp: new Date().toISOString(),
-                dataStatus: {
-                    productsCount: products.length,
-                    lastUpdate: metadata.lastUpdate,
-                    maintenanceMode: config.business?.maintenanceMode || false
-                }
-            };
-            
-            res.json({
-                success: true,
-                data: healthStatus
-            });
-        } catch (error) {
-            console.error('ConfigController.getHealthCheck:', error);
-            res.status(503).json({
-                success: false,
-                status: 'unhealthy',
-                error: 'Error en verificación de salud del sistema',
-                message: error.message,
-                timestamp: new Date().toISOString()
-            });
-        }
+        const isConnected = mongoose.connection.readyState === 1;
+        const status = isConnected ? 200 : 503;
+        res.status(status).json({
+            success: isConnected,
+            status: isConnected ? 'healthy' : 'unhealthy',
+            timestamp: new Date().toISOString()
+        });
     }
 }
 

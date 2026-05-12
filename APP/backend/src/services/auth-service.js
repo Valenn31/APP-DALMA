@@ -6,8 +6,8 @@ class AuthService {
     constructor() {
         this.jwtSecret = process.env.JWT_SECRET;
         if (!this.jwtSecret) {
-            if (process.env.NODE_ENV === 'production') {
-                throw new Error('JWT_SECRET es obligatorio en producción');
+            if (process.env.NODE_ENV !== 'development') {
+                throw new Error('JWT_SECRET es obligatorio. Definilo en las variables de entorno.');
             }
             console.warn('⚠️ JWT_SECRET no configurado. Generando clave temporal solo para desarrollo.');
             this.jwtSecret = require('crypto').randomBytes(64).toString('hex');
