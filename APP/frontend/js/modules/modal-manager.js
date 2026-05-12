@@ -277,11 +277,11 @@ export class ModalManager {
         toastText.innerText = message;
         
         // Mostrar toast
-        toast.classList.remove('opacity-0', 'translate-y-10');
-        
+        toast.classList.remove('opacity-0', '-translate-x-4');
+
         // Ocultar después del tiempo especificado
         setTimeout(() => {
-            toast.classList.add('opacity-0', 'translate-y-10');
+            toast.classList.add('opacity-0', '-translate-x-4');
         }, duration);
     }
 
