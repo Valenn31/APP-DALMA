@@ -1,7 +1,8 @@
 export class CategoriesSection {
-    constructor(apiClient, notificationManager) {
+    constructor(apiClient, notificationManager, galleryPicker = null) {
         this.api = apiClient;
         this.notify = notificationManager;
+        this.galleryPicker = galleryPicker;
         this.categories = [];
         this.allProducts = [];
         this.orderMode = false;
@@ -163,7 +164,10 @@ export class CategoriesSection {
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">O subir imagen</label>
                         <input type="file" id="catImageFile" accept="image/*,.heic,.heif" class="mb-2 text-sm">
-                        <button type="button" id="uploadCatImageBtn" class="bg-primary text-white px-3 py-1.5 rounded-lg text-sm hover:bg-opacity-90">Subir imagen</button>
+                        <div class="flex gap-2 flex-wrap">
+                            <button type="button" id="uploadCatImageBtn" class="bg-primary text-white px-3 py-1.5 rounded-lg text-sm hover:bg-opacity-90">Subir imagen</button>
+                            <button type="button" id="openCatGalleryBtn" class="bg-gray-100 text-gray-700 border border-gray-300 px-3 py-1.5 rounded-lg text-sm hover:bg-gray-200 flex items-center gap-1"><i class="fas fa-images text-xs"></i> Galería</button>
+                        </div>
                         <div id="catUploadResult" class="mt-1 text-xs text-gray-500"></div>
                     </div>
                     <div class="flex gap-4">
@@ -229,6 +233,12 @@ export class CategoriesSection {
             document.getElementById('catImageFile').value = '';
             document.getElementById('catUploadResult').textContent = '';
             this._updateCatImagePreview('');
+        });
+        document.getElementById('openCatGalleryBtn')?.addEventListener('click', () => {
+            this.galleryPicker?.open(url => {
+                document.getElementById('catImageUrl').value = url;
+                this._updateCatImagePreview(url);
+            });
         });
 
         // Modal asignar productos
@@ -404,6 +414,7 @@ export class CategoriesSection {
 
             this.categories = updatedCategories;
             this.notify.show('Listo', this.editingId ? 'Categoría actualizada' : 'Categoría creada', 'success');
+            resetBtn();
             this._closeModal();
             this._refreshList();
         } catch (err) {

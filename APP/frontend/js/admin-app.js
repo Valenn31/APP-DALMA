@@ -10,6 +10,8 @@ import { DashboardSection } from './admin/sections/dashboard.js';
 import { ProductsSection } from './admin/sections/products.js';
 import { ConfigSection } from './admin/sections/config.js';
 import { CategoriesSection } from './admin/sections/categories.js';
+import { GallerySection } from './admin/sections/gallery.js';
+import { GalleryPicker } from './admin/gallery-picker.js';
 
 class AdminApp {
     constructor() {
@@ -17,10 +19,12 @@ class AdminApp {
         this.auth = new AuthManager();
         this.notify = new NotificationManager();
         this.sidebar = new SidebarManager();
+        this.galleryPicker = new GalleryPicker(this.api);
+        this.gallery = new GallerySection(this.api, this.notify);
         this.dashboard = new DashboardSection(this.api);
-        this.products = new ProductsSection(this.api, this.notify);
+        this.products = new ProductsSection(this.api, this.notify, this.galleryPicker);
         this.configSection = new ConfigSection(this.api, this.notify);
-        this.categoriesSection = new CategoriesSection(this.api, this.notify);
+        this.categoriesSection = new CategoriesSection(this.api, this.notify, this.galleryPicker);
 
         this.initializeApp();
         this.setupEventListeners();
@@ -190,6 +194,9 @@ class AdminApp {
                 case 'config':
                     content = await this.configSection.render();
                     break;
+                case 'gallery':
+                    content = await this.gallery.render();
+                    break;
                 default:
                     content = '<div class="text-center py-12"><h2 class="text-2xl font-bold text-gray-600">Sección en desarrollo</h2></div>';
             }
@@ -204,6 +211,9 @@ class AdminApp {
             }
             if (sectionName === 'config') {
                 this.configSection.initializeEvents();
+            }
+            if (sectionName === 'gallery') {
+                this.gallery.initializeEvents();
             }
         } catch (error) {
             console.error(`Error cargando sección ${sectionName}:`, error);

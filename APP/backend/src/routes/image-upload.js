@@ -54,4 +54,37 @@ router.post('/upload', verifyToken, requireAdmin, (req, res) => {
     });
 });
 
+router.get('/', verifyToken, requireAdmin, async (req, res) => {
+    try {
+        const result = await cloudinary.api.resources({
+            type: 'upload',
+            prefix: 'dalma-products',
+            resource_type: 'image',
+            max_results: 500
+        });
+        res.json({
+            success: true,
+            images: result.resources.map(r => ({
+                publicId: r.public_id,
+                url: r.secure_url,
+                createdAt: r.created_at,
+                bytes: r.bytes
+            }))
+        });
+    } catch (error) {
+        res.status(500).json({ success: false, message: 'Error al obtener imágenes.' });
+    }
+});
+
+router.delete('/', verifyToken, requireAdmin, async (req, res) => {
+    try {
+        const { publicId } = req.query;
+        if (!publicId) return res.status(400).json({ success: false, message: 'Se requiere publicId.' });
+        await cloudinary.uploader.destroy(publicId);
+        res.json({ success: true });
+    } catch (error) {
+        res.status(500).json({ success: false, message: 'Error al eliminar imagen.' });
+    }
+});
+
 module.exports = router;

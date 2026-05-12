@@ -2,9 +2,10 @@
  * ProductsSection - Gestión completa de productos (CRUD, templates, filtros)
  */
 export class ProductsSection {
-    constructor(apiClient, notificationManager) {
+    constructor(apiClient, notificationManager, galleryPicker = null) {
         this.apiClient = apiClient;
         this.notify = notificationManager;
+        this.galleryPicker = galleryPicker;
     }
 
     // --- Rendering ---
@@ -251,7 +252,10 @@ export class ProductsSection {
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-2">O subir imagen</label>
                             <input type="file" id="imageInput" name="image" accept="image/*,.heic,.heif" class="mb-2">
-                            <button type="button" id="uploadImageBtn" class="bg-primary text-white px-3 py-1 rounded hover:bg-opacity-90">Subir Imagen</button>
+                            <div class="flex gap-2 flex-wrap">
+                                <button type="button" id="uploadImageBtn" class="bg-primary text-white px-3 py-1 rounded hover:bg-opacity-90">Subir imagen</button>
+                                <button type="button" id="openGalleryBtn" class="bg-gray-100 text-gray-700 border border-gray-300 px-3 py-1 rounded hover:bg-gray-200 flex items-center gap-1 text-sm"><i class="fas fa-images"></i> Galería</button>
+                            </div>
                             <div id="imageUploadResult" class="mt-2 text-sm"></div>
                         </div>
                         <div class="flex items-center"><input type="checkbox" id="productActive" name="active" class="mr-2"><label for="productActive" class="text-sm text-gray-700">Producto activo</label></div>
@@ -302,6 +306,13 @@ export class ProductsSection {
             document.getElementById('imageInput').value = '';
             document.getElementById('imageUploadResult').textContent = '';
             this._updateImagePreview('');
+        });
+
+        document.getElementById('openGalleryBtn')?.addEventListener('click', () => {
+            this.galleryPicker?.open(url => {
+                document.getElementById('productImage').value = url;
+                this._updateImagePreview(url);
+            });
         });
     }
 

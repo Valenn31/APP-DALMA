@@ -24,12 +24,20 @@ export class EventHandler {
             }
         });
 
-        // Al abrir el teclado en mobile, desplazar el campo de dirección para que quede visible
+        // Al abrir el teclado en mobile, desplazar el campo para que quede visible
         const addressInput = document.getElementById('delivery-address');
         if (addressInput) {
             addressInput.addEventListener('focus', () => {
                 setTimeout(() => {
                     addressInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }, 300);
+            });
+        }
+        const nameInput = document.getElementById('customer-name');
+        if (nameInput) {
+            nameInput.addEventListener('focus', () => {
+                setTimeout(() => {
+                    nameInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
                 }, 300);
             });
         }
@@ -206,6 +214,16 @@ export class EventHandler {
             return;
         }
 
+        // Obtener nombre del cliente
+        const nameInput = document.getElementById('customer-name');
+        const customerName = nameInput ? nameInput.value.trim() : '';
+
+        if (!customerName) {
+            this.modalManager.showToast('Ingresá tu nombre', 3000);
+            if (nameInput) nameInput.focus();
+            return;
+        }
+
         // Validar pedido antes de enviar
         const validation = this.orderService.validateOrder(this.cartManager, config);
 
@@ -218,7 +236,7 @@ export class EventHandler {
         const deliveryCost = this.productManager.getStoreConfig()?.deliveryCost ?? 300;
         const shippingCost = deliveryType === 'delivery' ? deliveryCost : 0;
         const categories = this.productManager.categories || [];
-        this.orderService.sendWhatsAppOrder(this.cartManager, config, address, paymentMethod, deliveryType, shippingCost, categories);
+        this.orderService.sendWhatsAppOrder(this.cartManager, config, address, paymentMethod, deliveryType, shippingCost, categories, customerName);
         this.modalManager.showToast('¡Pedido enviado por WhatsApp!', 3000);
     }
 

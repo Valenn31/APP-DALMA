@@ -192,7 +192,7 @@ class App {
             return `
                 <div id="category-card-${id}"
                      ${ok ? `data-action="selectCategory" data-category="${id}"` : ''}
-                     class="category-card flex-1 rounded-[28px] overflow-hidden flex flex-col ${ok ? 'cursor-pointer' : 'opacity-50 cursor-not-allowed'}"
+                     class="category-card shrink-0 h-[220px] rounded-[28px] overflow-hidden flex flex-col ${ok ? 'cursor-pointer' : 'opacity-50 cursor-not-allowed'}"
                      ${ok ? '' : 'style="pointer-events:none"'}>
                     <div class="flex-1 relative overflow-hidden">
                         <img src="${imgSrc}" class="absolute inset-0 w-full h-full object-cover" alt="${name}">

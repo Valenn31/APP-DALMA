@@ -12,7 +12,7 @@ export class OrderService {
      * @param {Object} cartManager - Manejador del carrito
      * @param {Object} config - Configuración de la tienda (número de WhatsApp, etc.)
      */
-    sendWhatsAppOrder(cartManager, config, address = '', paymentMethod = '', deliveryType = '', shippingCost = 0, categories = []) {
+    sendWhatsAppOrder(cartManager, config, address = '', paymentMethod = '', deliveryType = '', shippingCost = 0, categories = [], customerName = '') {
         if (!cartManager || cartManager.isEmpty()) {
             console.warn('OrderService: Carrito vacío, no se puede enviar pedido');
             return;
@@ -29,7 +29,7 @@ export class OrderService {
 
         try {
             // Formatear mensaje del pedido
-            const message = this.formatOrderMessage(cartManager, storeConfig, address, paymentMethod, deliveryType, shippingCost, categories);
+            const message = this.formatOrderMessage(cartManager, storeConfig, address, paymentMethod, deliveryType, shippingCost, categories, customerName);
             
             // Crear URL de WhatsApp
             const whatsappUrl = this.buildWhatsAppUrl(message, whatsappNumber);
@@ -53,7 +53,7 @@ export class OrderService {
      * @param {Object} storeConfig - Configuración de la tienda
      * @returns {string} Mensaje formateado
      */
-    formatOrderMessage(cartManager, storeConfig = {}, address = '', paymentMethod = '', deliveryType = '', shippingCost = 0, categories = []) {
+    formatOrderMessage(cartManager, storeConfig = {}, address = '', paymentMethod = '', deliveryType = '', shippingCost = 0, categories = [], customerName = '') {
         const cart = cartManager.getCart();
         const subtotal = cartManager.getTotal();
         const finalTotal = subtotal + shippingCost;
@@ -73,6 +73,7 @@ export class OrderService {
             bank:      '\u{1F3E6}',  // 🏦
             money:     '\u{1F4B5}',  // 💵
             hearts:    '\u{1F970}',  // 🥰
+            person:    '\u{1F464}',  // 👤
         };
 
         const paymentLabels = {
@@ -134,6 +135,9 @@ export class OrderService {
             if (paymentMethod === 'transferencia') {
                 lines.push(`${ic.bank} *Alias:* unacucharitamaszv`);
             }
+        }
+        if (customerName) {
+            lines.push(`${ic.person} *Nombre:* ${customerName}`);
         }
 
         lines.push('');

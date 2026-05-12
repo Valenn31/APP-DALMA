@@ -38,7 +38,7 @@
             <h2 class="font-display text-[2rem] font-bold text-chocolate leading-tight">¿Qué vas a<br>elegir hoy?</h2>
         </div>
 
-        <div id="categories-container" class="flex flex-col gap-4 flex-1">
+        <div id="categories-container" class="flex flex-col gap-4 flex-1 overflow-y-auto no-scrollbar">
             <!-- Renderizado dinámico via JS -->
         </div>
 
@@ -148,6 +148,11 @@
                                     </div>
                                 </label>
                             </div>
+                        </div>
+                        <div>
+                            <label for="customer-name" class="text-chocolate/40 font-bold uppercase tracking-widest text-[10px] mb-1 block">Tu nombre</label>
+                            <input type="text" id="customer-name" placeholder="Ej: María González"
+                                class="w-full px-4 py-3 rounded-2xl border border-[#e8ddd0] bg-white text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-[#48332c]/20 placeholder:text-gray-300">
                         </div>
                     </div>
                     <div class="px-8 pb-8 pt-5 bg-[#f2e9dc]/40 border-t border-[#e8ddd0]">

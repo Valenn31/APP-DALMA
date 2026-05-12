@@ -41,7 +41,9 @@ api/           → Entry point serverless para Vercel
 - `GET/POST /api/products` y `PUT/DELETE /api/products/:id` — CRUD de productos
 - `GET /api/config/store` y `GET /api/config/categories` — endpoints públicos (sin auth)
 - `GET/PUT /api/config` — configuración completa (requiere admin)
+- `GET /api/images` — lista imágenes del folder `dalma-products` en Cloudinary (requiere admin)
 - `POST /api/images/upload` — upload de imagen a Cloudinary (requiere admin). Devuelve `{ success, imageUrl }` donde `imageUrl` es una URL `https://res.cloudinary.com/...`
+- `DELETE /api/images?publicId=dalma-products/xxx` — elimina imagen de Cloudinary (requiere admin)
 - `POST /api/auth/login`, `PUT /api/auth/change-password`
 
 **Variables de entorno requeridas** (en `APP/backend/.env`):
@@ -84,6 +86,10 @@ FRONTEND_URL=             # para CORS en producción
 - `js/admin/sections/products.js` — CRUD de productos con upload de imagen
 - `js/admin/sections/categories.js` — CRUD de categorías (crear, editar, borrar, reordenar, asignar/quitar productos)
 - `js/admin/sections/config.js` — número de WhatsApp
+- `js/admin/sections/gallery.js` — galería de imágenes (ver, subir, borrar desde Cloudinary)
+
+**Componentes compartidos:**
+- `js/admin/gallery-picker.js` — modal picker para seleccionar imagen de la galería. Se instancia en `admin-app.js` y se pasa como tercer parámetro a `ProductsSection` y `CategoriesSection`.
 
 **Cliente HTTP del admin:** `js/admin/api-client.js` — `fetchWithAuth()` para JSON, `uploadFile()` para FormData (ambos inyectan el JWT automáticamente).
 
