@@ -66,10 +66,9 @@ export class GalleryPicker {
                 <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
                     ${data.images.map(img => `
                         <button type="button"
-                            class="picker-img-btn relative aspect-square rounded-xl overflow-hidden border-2 border-transparent hover:border-primary focus:border-primary focus:outline-none transition-all shadow-sm hover:shadow-md"
+                            class="picker-img-btn aspect-square rounded-xl overflow-hidden border-2 border-transparent hover:border-primary focus:border-primary focus:outline-none transition-all shadow-sm hover:shadow-md"
                             data-url="${img.url}">
-                            <img src="${img.url}" alt="" class="w-full h-full object-cover">
-                            <div class="absolute inset-0 bg-primary bg-opacity-0 hover:bg-opacity-10 transition-all"></div>
+                            <img src="${img.url}" alt="" class="w-full h-full object-cover hover:opacity-90 transition-opacity">
                         </button>
                     `).join('')}
                 </div>`;
