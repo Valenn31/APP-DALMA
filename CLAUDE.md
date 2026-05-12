@@ -41,15 +41,18 @@ api/           → Entry point serverless para Vercel
 - `GET/POST /api/products` y `PUT/DELETE /api/products/:id` — CRUD de productos
 - `GET /api/config/store` y `GET /api/config/categories` — endpoints públicos (sin auth)
 - `GET/PUT /api/config` — configuración completa (requiere admin)
-- `POST /api/images/upload` — upload de imagen a `APP/frontend/assets/img/postres/` (requiere admin)
+- `POST /api/images/upload` — upload de imagen a Cloudinary (requiere admin). Devuelve `{ success, imageUrl }` donde `imageUrl` es una URL `https://res.cloudinary.com/...`
 - `POST /api/auth/login`, `PUT /api/auth/change-password`
 
 **Variables de entorno requeridas** (en `APP/backend/.env`):
 ```
-MONGODB_URI=       # también acepta MONGO_URI
+MONGODB_URI=              # también acepta MONGO_URI
 JWT_SECRET=
-PORT=3000          # opcional
-FRONTEND_URL=      # para CORS en producción
+CLOUDINARY_CLOUD_NAME=    # almacenamiento de imágenes
+CLOUDINARY_API_KEY=
+CLOUDINARY_API_SECRET=
+PORT=3000                 # opcional
+FRONTEND_URL=             # para CORS en producción
 ```
 
 **Autenticación:** JWT en header `Authorization: Bearer <token>`. El middleware `verifyToken` + `requireAdmin` protege las rutas de escritura. El token se almacena en localStorage bajo la clave `admin_token`.
@@ -101,9 +104,9 @@ Las categorías se guardan en MongoDB como `{ key: 'categories', value: [...] }`
 
 `data-service.js` normaliza automáticamente documentos viejos (sin `available`/`order`) al leerlos.
 
-### Rutas de imágenes
+### Imágenes
 
-Las imágenes se guardan en `APP/frontend/assets/img/postres/`. Al renderizarlas siempre verificar si la URL es absoluta o relativa:
+Las imágenes nuevas se suben a **Cloudinary** (folder `dalma-products`) y se almacenan en MongoDB como URLs absolutas `https://res.cloudinary.com/...`. Las imágenes antiguas siguen como rutas relativas `assets/img/postres/...` (commiteadas en el repo). Al renderizar siempre verificar:
 
 ```js
 const src = image.startsWith('http') ? image : '/' + image;

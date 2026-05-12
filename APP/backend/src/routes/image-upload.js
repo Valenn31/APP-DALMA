@@ -1,37 +1,21 @@
 const express = require('express');
 const multer = require('multer');
-const path = require('path');
-const fs = require('fs');
+const { v2: cloudinary } = require('cloudinary');
 const { verifyToken, requireAdmin } = require('../middleware/auth-middleware');
 
 const router = express.Router();
 
+cloudinary.config({
+    cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+    api_key: process.env.CLOUDINARY_API_KEY,
+    api_secret: process.env.CLOUDINARY_API_SECRET,
+});
+
 const ALLOWED_MIME_TYPES = ['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'image/heic', 'image/heif'];
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
 
-const storage = multer.diskStorage({
-    destination: function (req, file, cb) {
-        const dest = path.join(__dirname, '../../../frontend/assets/img/postres');
-        fs.mkdirSync(dest, { recursive: true });
-        cb(null, dest);
-    },
-    filename: function (req, file, cb) {
-        const extByMime = {
-            'image/jpeg': '.jpg',
-            'image/png': '.png',
-            'image/gif': '.gif',
-            'image/webp': '.webp',
-            'image/heic': '.heic',
-            'image/heif': '.heif'
-        };
-        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-        const ext = extByMime[file.mimetype] || '.jpg';
-        cb(null, 'upload-' + uniqueSuffix + ext);
-    }
-});
-
 const upload = multer({
-    storage,
+    storage: multer.memoryStorage(),
     limits: { fileSize: MAX_FILE_SIZE },
     fileFilter: (req, file, cb) => {
         if (ALLOWED_MIME_TYPES.includes(file.mimetype)) {
@@ -42,7 +26,7 @@ const upload = multer({
     }
 });
 
-router.post('/upload', verifyToken, requireAdmin, (req, res, next) => {
+router.post('/upload', verifyToken, requireAdmin, (req, res) => {
     upload.single('image')(req, res, (err) => {
         if (err instanceof multer.MulterError) {
             if (err.code === 'LIMIT_FILE_SIZE') {
@@ -56,8 +40,17 @@ router.post('/upload', verifyToken, requireAdmin, (req, res, next) => {
         if (!req.file) {
             return res.status(400).json({ success: false, message: 'No se subió ningún archivo.' });
         }
-        const relativePath = `assets/img/postres/${req.file.filename}`;
-        res.json({ success: true, imageUrl: relativePath });
+
+        const stream = cloudinary.uploader.upload_stream(
+            { folder: 'dalma-products' },
+            (error, result) => {
+                if (error) {
+                    return res.status(500).json({ success: false, message: 'Error al subir imagen a Cloudinary.' });
+                }
+                res.json({ success: true, imageUrl: result.secure_url });
+            }
+        );
+        stream.end(req.file.buffer);
     });
 });
 

@@ -158,6 +158,7 @@ export class CategoriesSection {
                         <label class="block text-sm font-medium text-gray-700 mb-1">URL o ruta de imagen</label>
                         <input type="text" id="catImageUrl" placeholder="Ej: assets/img/postres/tortas.jpeg" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-primary focus:border-primary">
                         <div id="catImagePreview" class="mt-2 hidden"><img id="catImagePreviewImg" class="h-20 w-20 rounded-lg object-cover border border-gray-200" alt="Vista previa"></div>
+                        <button type="button" id="removeCatImageBtn" class="hidden mt-1 flex items-center gap-1 text-xs text-red-500 hover:text-red-700"><i class="fas fa-times"></i> Quitar imagen</button>
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">O subir imagen</label>
@@ -223,6 +224,12 @@ export class CategoriesSection {
         document.getElementById('saveCategoryBtn')?.addEventListener('click', () => this._saveCategory());
         document.getElementById('catImageUrl')?.addEventListener('input', e => this._updateCatImagePreview(e.target.value));
         document.getElementById('uploadCatImageBtn')?.addEventListener('click', () => this._uploadCategoryImage());
+        document.getElementById('removeCatImageBtn')?.addEventListener('click', () => {
+            document.getElementById('catImageUrl').value = '';
+            document.getElementById('catImageFile').value = '';
+            document.getElementById('catUploadResult').textContent = '';
+            this._updateCatImagePreview('');
+        });
 
         // Modal asignar productos
         document.getElementById('closeAssignModal')?.addEventListener('click', () => this._closeAssignModal());
@@ -574,7 +581,9 @@ export class CategoriesSection {
     _updateCatImagePreview(url) {
         const preview = document.getElementById('catImagePreview');
         const img     = document.getElementById('catImagePreviewImg');
+        const removeBtn = document.getElementById('removeCatImageBtn');
         if (!preview || !img) return;
+        if (removeBtn) removeBtn.classList.toggle('hidden', !url);
         if (url) {
             const src = url.startsWith('http') ? url : `/${url}`;
             img.src = src;

@@ -246,6 +246,7 @@ export class ProductsSection {
                             <input type="text" id="productImage" name="image" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary" placeholder="Ej: https://... o assets/img/postres/archivo.jpg">
                             <p class="text-xs text-gray-500 mt-1">Puedes pegar una URL completa o subir una imagen y se completará automáticamente.</p>
                             <div id="imagePreview" class="mt-2 hidden"><img id="imagePreviewImg" class="h-24 w-24 rounded-lg object-cover border border-gray-200" alt="Vista previa"></div>
+                            <button type="button" id="removeImageBtn" class="hidden mt-1 flex items-center gap-1 text-xs text-red-500 hover:text-red-700"><i class="fas fa-times"></i> Quitar imagen</button>
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-2">O subir imagen</label>
@@ -286,13 +287,6 @@ export class ProductsSection {
                 const data = await this.apiClient.uploadFile('/images/upload', formData);
                 if (data.success) {
                     resultDiv.textContent = '';
-                    const code = document.createElement('code');
-                    code.textContent = data.imageUrl;
-                    const img = document.createElement('img');
-                    img.src = '/' + data.imageUrl;
-                    img.width = 100;
-                    resultDiv.append('Imagen subida: ', code, document.createElement('br'), img);
-                    // Poner la URL devuelta en el campo de imagen
                     document.getElementById('productImage').value = data.imageUrl;
                     this._updateImagePreview(data.imageUrl);
                 } else {
@@ -301,6 +295,13 @@ export class ProductsSection {
             } catch (err) {
                 resultDiv.textContent = 'Error al subir la imagen.';
             }
+        });
+
+        document.getElementById('removeImageBtn')?.addEventListener('click', () => {
+            document.getElementById('productImage').value = '';
+            document.getElementById('imageInput').value = '';
+            document.getElementById('imageUploadResult').textContent = '';
+            this._updateImagePreview('');
         });
     }
 
@@ -613,8 +614,10 @@ export class ProductsSection {
     _updateImagePreview(url) {
         const preview = document.getElementById('imagePreview');
         const img = document.getElementById('imagePreviewImg');
+        const removeBtn = document.getElementById('removeImageBtn');
         if (!preview || !img) return;
-        if (url && (url.startsWith('http://') || url.startsWith('https://'))) {
+        if (removeBtn) removeBtn.classList.toggle('hidden', !url);
+        if (url && url.startsWith('http')) {
             img.src = url;
             img.onerror = () => preview.classList.add('hidden');
             img.onload = () => preview.classList.remove('hidden');
