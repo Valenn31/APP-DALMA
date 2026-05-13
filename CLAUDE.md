@@ -39,6 +39,7 @@ api/           → Entry point serverless para Vercel
 
 **Rutas de la API:**
 - `GET/POST /api/products` y `PUT/DELETE /api/products/:id` — CRUD de productos
+- `POST /api/products/consume-stock` — descuenta stock al confirmar un pedido (público). Body: `{ items: [{productId, quantity}] }`. Clampea a 0, no rechaza si no hay stock.
 - `GET /api/config/store` y `GET /api/config/categories` — endpoints públicos (sin auth)
 - `GET/PUT /api/config` — configuración completa (requiere admin)
 - `GET /api/images` — lista imágenes del folder `dalma-products` en Cloudinary (requiere admin)

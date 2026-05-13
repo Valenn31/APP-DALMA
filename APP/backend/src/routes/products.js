@@ -15,6 +15,7 @@ router.get('/stats', verifyToken, requireAdmin, logAdminAccess, (req, res) => pr
 
 // Rutas públicas generales (no requieren autenticación)
 router.get('/', (req, res) => productController.getAllProducts(req, res));
+router.post('/consume-stock', (req, res) => productController.consumeStock(req, res));
 router.get('/:id', (req, res) => productController.getProductById(req, res));
 
 // Rutas administrativas (requieren autenticación JWT + rol admin)

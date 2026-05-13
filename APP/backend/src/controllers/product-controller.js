@@ -278,6 +278,42 @@ class ProductController {
     }
 
     /**
+     * Descuenta stock de múltiples productos al confirmar un pedido
+     * POST /api/products/consume-stock
+     * Público — no requiere autenticación
+     */
+    async consumeStock(req, res) {
+        try {
+            const { items } = req.body;
+
+            if (!Array.isArray(items) || items.length === 0) {
+                return res.status(400).json({ success: false, error: 'items debe ser un array no vacío' });
+            }
+
+            const updatedProducts = [];
+
+            for (const item of items) {
+                const productId = parseInt(item.productId);
+                const quantity = parseInt(item.quantity);
+
+                if (isNaN(productId) || isNaN(quantity) || quantity <= 0) continue;
+
+                const product = await this.dataService.getProductById(productId);
+                if (!product) continue;
+
+                const newStock = Math.max(0, (product.stock || 0) - quantity);
+                const updated = await this.dataService.updateProduct(productId, { stock: newStock });
+                if (updated) updatedProducts.push({ id: updated.id, stock: updated.stock });
+            }
+
+            res.json({ success: true, data: updatedProducts });
+        } catch (error) {
+            console.error('ProductController.consumeStock:', error);
+            res.status(500).json({ success: false, error: 'Error al descontar stock' });
+        }
+    }
+
+    /**
      * Obtiene estadísticas de productos e inventario
      * GET /api/products/stats
      * Requiere autenticación admin

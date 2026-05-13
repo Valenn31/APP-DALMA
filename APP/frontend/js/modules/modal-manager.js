@@ -40,6 +40,21 @@ export class ModalManager {
         if (desc) desc.textContent = product.desc;
         if (price) price.textContent = `$${product.price.toLocaleString()}`;
 
+        const stockBadge = document.getElementById('product-detail-stock');
+        if (stockBadge) {
+            if (product.stock === 1) {
+                stockBadge.textContent = '¡Última unidad!';
+                stockBadge.className = 'text-right text-xs font-semibold mb-4 text-red-400';
+                stockBadge.classList.remove('hidden');
+            } else if (product.stock <= 5) {
+                stockBadge.textContent = `Solo quedan ${product.stock} unidades`;
+                stockBadge.className = 'text-right text-xs font-semibold mb-4 text-orange-400';
+                stockBadge.classList.remove('hidden');
+            } else {
+                stockBadge.classList.add('hidden');
+            }
+        }
+
         // Selector de variantes
         const variantsContainer = document.getElementById('product-detail-variants');
         if (variantsContainer) {
