@@ -57,6 +57,13 @@ export class CartManager {
         return this.cart.length === 0;
     }
 
+    getQuantityForProduct(id, variantName = null) {
+        const item = this.cart.find(
+            i => i.id === id && (i.selectedVariant?.name ?? null) === (variantName || null)
+        );
+        return item ? item.quantity : 0;
+    }
+
     triggerUIUpdate() {
         if (this.updateUICallback) {
             this.updateUICallback();

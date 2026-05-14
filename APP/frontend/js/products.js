@@ -99,7 +99,8 @@ export class ProductManager {
             description: product.description,
             img: product.image,
             image: product.image,
-            variants: product.variants || []
+            variants: product.variants || [],
+            stock: product.stock ?? 0
         };
 
         // Campos adicionales para admin o análisis
@@ -222,5 +223,32 @@ export class ProductManager {
      */
     isMaintenanceMode() {
         return this.config.business?.maintenanceMode || false;
+    }
+
+    updateLocalStock(productId, newStock) {
+        const product = this.products.find(p => p.id === productId);
+        if (product) product.stock = newStock;
+    }
+
+    saveSale(saleData) {
+        fetch(`${API_BASE_URL}/sales`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(saleData)
+        }).catch(() => {});
+    }
+
+    async consumeStock(items) {
+        try {
+            const res = await fetch(`${API_BASE_URL}/products/consume-stock`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ items })
+            });
+            const data = await res.json();
+            if (data.success && data.data) {
+                data.data.forEach(u => this.updateLocalStock(u.id, u.stock));
+            }
+        } catch {}
     }
 }

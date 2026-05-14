@@ -147,6 +147,14 @@ export class EventHandler {
             return;
         }
 
+        const available = this.productManager.getStock(productId);
+        const inCart = this.cartManager.getQuantityForProduct(productId, variant?.name ?? null);
+        if (inCart >= available) {
+            const msg = available === 1 ? '¡Es la última unidad!' : `Solo hay ${available} unidades disponibles`;
+            this.modalManager.showToast(msg, 3000);
+            return;
+        }
+
         this.cartManager.addItem(product, variant);
         const variantText = variant ? ` (${variant.name})` : '';
         this.modalManager.showToast(`¡${product.name}${variantText} agregado!`);
@@ -163,6 +171,14 @@ export class EventHandler {
      */
     handleUpdateQuantity(productId, delta, variantName = null) {
         if (!productId || isNaN(productId) || !delta || isNaN(delta)) return;
+        if (delta > 0) {
+            const available = this.productManager.getStock(productId);
+            const inCart = this.cartManager.getQuantityForProduct(productId, variantName);
+            if (inCart >= available) {
+                this.modalManager.showToast(`Solo hay ${available} unidades disponibles`, 3000);
+                return;
+            }
+        }
         this.cartManager.updateQuantity(productId, delta, variantName || null);
     }
 
@@ -238,6 +254,29 @@ export class EventHandler {
         const categories = this.productManager.categories || [];
         this.orderService.sendWhatsAppOrder(this.cartManager, config, address, paymentMethod, deliveryType, shippingCost, categories, customerName);
         this.modalManager.showToast('¡Pedido enviado por WhatsApp!', 3000);
+
+        const cartItems = this.cartManager.getCart();
+        const stockItems = cartItems.map(item => ({ productId: item.id, quantity: item.quantity }));
+        this.productManager.consumeStock(stockItems).then(() => {
+            this.viewManager.refresh();
+        });
+
+        const saleData = {
+            customerName,
+            items: cartItems.map(item => ({
+                productId: item.id,
+                productName: item.name,
+                quantity: item.quantity,
+                unitPrice: item.price
+            })),
+            deliveryType,
+            deliveryAddress: address,
+            paymentMethod,
+            shippingCost,
+            subtotal: this.cartManager.getTotal(),
+            total: this.cartManager.getTotal() + shippingCost
+        };
+        this.productManager.saveSale(saleData);
     }
 
     /**

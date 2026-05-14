@@ -12,6 +12,7 @@ import { ConfigSection } from './admin/sections/config.js';
 import { CategoriesSection } from './admin/sections/categories.js';
 import { GallerySection } from './admin/sections/gallery.js';
 import { GalleryPicker } from './admin/gallery-picker.js';
+import { SalesSection } from './admin/sections/sales.js';
 
 class AdminApp {
     constructor() {
@@ -25,6 +26,7 @@ class AdminApp {
         this.products = new ProductsSection(this.api, this.notify, this.galleryPicker);
         this.configSection = new ConfigSection(this.api, this.notify);
         this.categoriesSection = new CategoriesSection(this.api, this.notify, this.galleryPicker);
+        this.salesSection = new SalesSection(this.api, this.notify);
 
         this.initializeApp();
         this.setupEventListeners();
@@ -163,11 +165,13 @@ class AdminApp {
         document.getElementById('loginScreen').classList.add('hidden');
         document.getElementById('adminPanel').classList.remove('hidden');
         document.getElementById('userDisplayName').textContent = appState.user.username;
-        this.navigateToSection('dashboard');
+        const lastSection = localStorage.getItem('admin_last_section') || 'dashboard';
+        this.navigateToSection(lastSection);
     }
 
     async navigateToSection(sectionName) {
         appState.currentSection = sectionName;
+        localStorage.setItem('admin_last_section', sectionName);
         
         document.querySelectorAll('.sidebar-item').forEach(i => i.classList.remove('active'));
         const activeItem = document.querySelector(`.sidebar-item[data-section="${sectionName}"]`);
@@ -187,6 +191,9 @@ class AdminApp {
                     break;
                 case 'stock':
                     content = '<div class="text-center py-12"><h2 class="text-2xl font-bold text-gray-600">Sección de Stock</h2><p class="text-gray-500 mt-2">En desarrollo...</p></div>';
+                    break;
+                case 'sales':
+                    content = await this.salesSection.render();
                     break;
                 case 'categories':
                     content = await this.categoriesSection.render();
@@ -214,6 +221,9 @@ class AdminApp {
             }
             if (sectionName === 'gallery') {
                 this.gallery.initializeEvents();
+            }
+            if (sectionName === 'sales') {
+                this.salesSection.initializeEvents();
             }
         } catch (error) {
             console.error(`Error cargando sección ${sectionName}:`, error);

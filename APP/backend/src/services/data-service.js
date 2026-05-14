@@ -1,5 +1,6 @@
 const Product = require('../models/Product');
 const Config = require('../models/Config');
+const Sale = require('../models/Sale');
 
 /**
  * DataService - Maneja la persistencia de datos usando MongoDB
@@ -138,7 +139,51 @@ class DataService {
         };
     }
 
+    // ===================== MÉTODOS DE VENTAS =====================
+
+    async getSales() {
+        const sales = await Sale.find().sort({ date: -1 }).lean();
+        return sales.map(s => this._cleanSaleDoc(s));
+    }
+
+    async getSaleById(id) {
+        const sale = await Sale.findById(id).lean();
+        return sale ? this._cleanSaleDoc(sale) : null;
+    }
+
+    async createSale(saleData) {
+        // Usa el max actual de orderId para garantizar unicidad sin pipeline
+        const lastSale = await Sale.findOne().sort({ orderId: -1 }).select('orderId').lean();
+        const orderId = (lastSale?.orderId ?? 0) + 1;
+
+        const sale = new Sale({ orderId, ...saleData });
+        const saved = await sale.save();
+        return this._cleanSaleDoc(saved.toObject());
+    }
+
+    async updateSale(id, updates) {
+        const updated = await Sale.findByIdAndUpdate(
+            id,
+            updates,
+            { new: true }
+        ).lean();
+        return updated ? this._cleanSaleDoc(updated) : null;
+    }
+
+    async deleteSale(id) {
+        const result = await Sale.findByIdAndDelete(id).lean();
+        return result ? this._cleanSaleDoc(result) : null;
+    }
+
     // ===================== HELPERS =====================
+
+    _cleanSaleDoc(doc) {
+        const { __v, ...clean } = doc;
+        if (clean._id) clean._id = clean._id.toString();
+        if (clean.createdAt) clean.createdAt = new Date(clean.createdAt).toISOString();
+        if (clean.updatedAt) clean.updatedAt = new Date(clean.updatedAt).toISOString();
+        return clean;
+    }
 
     _cleanDoc(doc) {
         const { _id, __v, ...clean } = doc;

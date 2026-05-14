@@ -222,7 +222,8 @@ export class ProductsSection {
                                     ${(this._categories || []).map(c => `<option value="${c.id}">${c.name}</option>`).join('')}
                                 </select>
                             </div>
-                            <div><label class="block text-sm font-medium text-gray-700 mb-2">Precio *</label><input type="number" id="productPrice" name="price" step="0.01" min="0" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary"></div>
+                            <div><label class="block text-sm font-medium text-gray-700 mb-2">Precio de venta *</label><input type="number" id="productPrice" name="price" step="0.01" min="0" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary"></div>
+                            <div><label class="block text-sm font-medium text-gray-700 mb-2">Precio de costo</label><input type="number" id="productCost" name="cost" step="0.01" min="0" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary" placeholder="0"></div>
                             <div><label class="block text-sm font-medium text-gray-700 mb-2">Stock Inicial</label><input type="number" id="productStock" name="stock" min="0" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary"></div>
                             <div><label class="block text-sm font-medium text-gray-700 mb-2">Stock Mínimo</label><input type="number" id="productMinStock" name="minStock" min="0" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary"></div>
                         </div>
@@ -355,6 +356,7 @@ export class ProductsSection {
         document.getElementById('productSku').value = product.sku || '';
         document.getElementById('productCategory').value = product.category || '';
         document.getElementById('productPrice').value = product.price != null ? product.price : '';
+        document.getElementById('productCost').value = product.cost != null ? product.cost : '';
         document.getElementById('productStock').value = product.stock != null ? product.stock : '';
         document.getElementById('productMinStock').value = product.minStock != null ? product.minStock : '';
         document.getElementById('productDescription').value = product.description || '';
@@ -408,6 +410,7 @@ export class ProductsSection {
             sku: document.getElementById('productSku').value.trim(),
             category: document.getElementById('productCategory').value,
             price: parseFloat(document.getElementById('productPrice').value),
+            cost: parseFloat(document.getElementById('productCost').value) || 0,
             stock: stockVal !== '' ? parseInt(stockVal) : 0,
             minStock: minStockVal !== '' ? parseInt(minStockVal) : 0,
             description: document.getElementById('productDescription').value.trim(),

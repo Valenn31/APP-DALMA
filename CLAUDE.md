@@ -35,10 +35,15 @@ api/           → Entry point serverless para Vercel
 - `src/routes/` → solo define rutas y middleware de auth
 - `src/controllers/` → lógica de negocio
 - `src/services/data-service.js` → toda la interacción con MongoDB (singleton). Las categorías se almacenan como documentos `Config` con `key: 'categories'`, no en un modelo separado.
-- `src/models/` → esquemas Mongoose: `Product`, `Config`, `AdminUser`
+- `src/models/` → esquemas Mongoose: `Product`, `Config`, `AdminUser`, `Sale`
 
 **Rutas de la API:**
 - `GET/POST /api/products` y `PUT/DELETE /api/products/:id` — CRUD de productos
+- `POST /api/products/consume-stock` — descuenta stock al confirmar un pedido (público). Body: `{ items: [{productId, quantity}] }`. Clampea a 0, no rechaza si no hay stock.
+- `GET /api/sales` — lista ventas ordenadas por fecha desc (requiere admin)
+- `POST /api/sales` — crea venta (público — llamado desde el catálogo al confirmar pedido). El backend enriquece cada item con `unitCost` desde `Product.cost`.
+- `PUT /api/sales/:id` — edita venta, ajusta stock según diferencia de items/cantidades y agrega entrada al changelog (requiere admin)
+- `DELETE /api/sales/:id` — elimina venta y restaura el stock de todos sus items (requiere admin)
 - `GET /api/config/store` y `GET /api/config/categories` — endpoints públicos (sin auth)
 - `GET/PUT /api/config` — configuración completa (requiere admin)
 - `GET /api/images` — lista imágenes del folder `dalma-products` en Cloudinary (requiere admin)
