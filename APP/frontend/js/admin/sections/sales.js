@@ -422,7 +422,7 @@ export class SalesSection {
     // ─── Render de filas ────────────────────────────────────────────────────────
 
     _renderRow(sale) {
-        const date = new Date(sale.date).toLocaleDateString('es-AR', { day: '2-digit', month: '2-digit', year: '2-digit' });
+        const date = new Date(sale.date).toLocaleString('es-AR', { day: '2-digit', month: '2-digit', year: '2-digit', hour: '2-digit', minute: '2-digit' });
         const itemsText = sale.items.map(i => `${i.quantity}x ${esc(i.productName)}`).join(', ');
         const deliveryLabel = sale.deliveryType === 'delivery' ? '<span class="text-blue-600">Delivery</span>' : '<span class="text-gray-500">Retiro</span>';
         const payLabel = sale.paymentMethod === 'transferencia' ? '<span class="text-purple-600">Transfer.</span>' : '<span class="text-green-600">Efectivo</span>';
@@ -452,7 +452,7 @@ export class SalesSection {
     }
 
     _renderCard(sale) {
-        const date = new Date(sale.date).toLocaleDateString('es-AR', { day: '2-digit', month: '2-digit', year: '2-digit' });
+        const date = new Date(sale.date).toLocaleString('es-AR', { day: '2-digit', month: '2-digit', year: '2-digit', hour: '2-digit', minute: '2-digit' });
         return `
             <div class="p-4 space-y-2">
                 <div class="flex items-start justify-between">
