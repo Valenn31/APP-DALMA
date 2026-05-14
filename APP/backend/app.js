@@ -40,11 +40,13 @@ const productRoutes = require('./src/routes/products');
 const configRoutes = require('./src/routes/config');
 const authRoutes = require('./src/routes/auth');
 const imageUploadRoutes = require('./src/routes/image-upload');
+const salesRoutes = require('./src/routes/sales');
 
 app.use('/api/auth', authRoutes);
 app.use('/api/products', productRoutes);
 app.use('/api/config', configRoutes);
 app.use('/api/images', imageUploadRoutes);
+app.use('/api/sales', salesRoutes);
 
 // Ruta de salud
 app.get('/api/health', (req, res) => {

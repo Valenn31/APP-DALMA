@@ -230,6 +230,14 @@ export class ProductManager {
         if (product) product.stock = newStock;
     }
 
+    saveSale(saleData) {
+        fetch(`${API_BASE_URL}/sales`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(saleData)
+        }).catch(() => {});
+    }
+
     async consumeStock(items) {
         try {
             const res = await fetch(`${API_BASE_URL}/products/consume-stock`, {

@@ -255,10 +255,28 @@ export class EventHandler {
         this.orderService.sendWhatsAppOrder(this.cartManager, config, address, paymentMethod, deliveryType, shippingCost, categories, customerName);
         this.modalManager.showToast('¡Pedido enviado por WhatsApp!', 3000);
 
-        const items = this.cartManager.getCart().map(item => ({ productId: item.id, quantity: item.quantity }));
-        this.productManager.consumeStock(items).then(() => {
+        const cartItems = this.cartManager.getCart();
+        const stockItems = cartItems.map(item => ({ productId: item.id, quantity: item.quantity }));
+        this.productManager.consumeStock(stockItems).then(() => {
             this.viewManager.refresh();
         });
+
+        const saleData = {
+            customerName,
+            items: cartItems.map(item => ({
+                productId: item.id,
+                productName: item.name,
+                quantity: item.quantity,
+                unitPrice: item.price
+            })),
+            deliveryType,
+            deliveryAddress: address,
+            paymentMethod,
+            shippingCost,
+            subtotal: this.cartManager.getTotal(),
+            total: this.cartManager.getTotal() + shippingCost
+        };
+        this.productManager.saveSale(saleData);
     }
 
     /**
