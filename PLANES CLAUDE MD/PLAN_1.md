@@ -51,7 +51,15 @@
 - [x] **Eliminación de ventas** con restauración de stock
     - Borrar una venta restaura el stock de todos sus items
 
-### Por realizar
+- [x] **Reportes** de ventas — pestaña dentro de la sección Ventas
+    - Selector de período: Semana / Mes / Año con navegador < >
+    - 4 stat cards: Facturado, Ganancia bruta, Pedidos, Promedio/pedido
+    - Tabla de desglose por subperíodo (días / semanas / meses)
+    - Tabla de productos más vendidos (unidades + revenue)
+    - Todo calculado client-side sin nueva ruta de backend
 
-- [ ] **Reportes** semanales, mensuales y anuales de lo vendido
-    - Requiere sumar ventas por período y mostrar totales, ganancia bruta (precio_venta - precio_costo) y cantidad de pedidos
+- [x] Filtros en Reportes: filtrar por categoría y/o producto específico
+    - Selector "Todas las categorías" → filtra el dropdown de productos al mismo tiempo
+    - Selector "Todos los productos" → muestra solo las ventas de ese producto
+    - Botón "Limpiar" aparece cuando hay algún filtro activo
+    - Todos los cálculos (facturado, ganancia, desglose, top productos) respetan los filtros
