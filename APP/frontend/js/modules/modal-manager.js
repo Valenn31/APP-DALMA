@@ -41,24 +41,26 @@ export class ModalManager {
         if (price) price.textContent = `$${product.price.toLocaleString()}`;
 
         const stockBadge = document.getElementById('product-detail-stock');
-        if (stockBadge) {
-            if (product.stock === 1) {
+        const updateStockBadge = (stock) => {
+            if (!stockBadge) return;
+            if (stock === 1) {
                 stockBadge.textContent = '¡Última unidad!';
                 stockBadge.className = 'text-right text-xs font-semibold mb-4 text-red-400';
                 stockBadge.classList.remove('hidden');
-            } else if (product.stock <= 5) {
-                stockBadge.textContent = `Solo quedan ${product.stock} unidades`;
+            } else if (stock <= 5) {
+                stockBadge.textContent = `Solo quedan ${stock} unidades`;
                 stockBadge.className = 'text-right text-xs font-semibold mb-4 text-orange-400';
                 stockBadge.classList.remove('hidden');
             } else {
                 stockBadge.classList.add('hidden');
             }
-        }
+        };
 
         // Selector de variantes
         const variantsContainer = document.getElementById('product-detail-variants');
         if (variantsContainer) {
             if (product.variants?.length > 0) {
+                const hasVariantStock = product.variants.some(v => v.stock !== null && v.stock !== undefined);
                 variantsContainer.innerHTML = `
                     <p class="text-chocolate/40 font-semibold uppercase tracking-widest text-[10px] mb-2">Variante</p>
                     <div class="flex flex-wrap gap-2">
@@ -66,16 +68,22 @@ export class ModalManager {
                             <button class="variant-btn px-4 py-2 rounded-xl border text-sm font-semibold transition-all ${i === 0 ? 'border-[#48332c] bg-[#48332c] text-white' : 'border-[#e8ddd0] text-chocolate'}"
                                 data-variant-name="${v.name}"
                                 data-variant-price="${v.price ?? ''}"
+                                data-variant-stock="${v.stock ?? ''}"
                                 ${i === 0 ? 'data-selected="true"' : ''}>
                                 ${v.name}
                             </button>
                         `).join('')}
                     </div>
                 `;
-                // Precio inicial de la primera variante
+                // Precio y stock inicial de la primera variante
                 const firstVariant = product.variants[0];
                 if (price && firstVariant.price != null) {
                     price.textContent = `$${firstVariant.price.toLocaleString()}`;
+                }
+                if (hasVariantStock) {
+                    updateStockBadge(firstVariant.stock ?? product.stock);
+                } else {
+                    updateStockBadge(product.stock);
                 }
                 // Listeners de selección
                 variantsContainer.querySelectorAll('.variant-btn').forEach(btn => {
@@ -90,11 +98,18 @@ export class ModalManager {
                         btn.setAttribute('data-selected', 'true');
                         const vPrice = btn.dataset.variantPrice;
                         if (price) price.textContent = `$${(vPrice ? parseFloat(vPrice) : product.price).toLocaleString()}`;
+                        if (hasVariantStock) {
+                            const vStock = btn.dataset.variantStock;
+                            updateStockBadge(vStock !== '' ? parseInt(vStock) : product.stock);
+                        }
                     });
                 });
             } else {
                 variantsContainer.innerHTML = '';
+                updateStockBadge(product.stock);
             }
+        } else {
+            updateStockBadge(product.stock);
         }
 
         // Configurar botón de agregar al carrito

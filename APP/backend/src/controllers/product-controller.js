@@ -295,11 +295,24 @@ class ProductController {
             for (const item of items) {
                 const productId = parseInt(item.productId);
                 const quantity = parseInt(item.quantity);
+                const variantName = item.variantName || null;
 
                 if (isNaN(productId) || isNaN(quantity) || quantity <= 0) continue;
 
                 const product = await this.dataService.getProductById(productId);
                 if (!product) continue;
+
+                if (variantName && product.variants?.length > 0) {
+                    const idx = product.variants.findIndex(v => v.name === variantName);
+                    if (idx !== -1 && product.variants[idx].stock !== null && product.variants[idx].stock !== undefined) {
+                        const updatedVariants = product.variants.map((v, i) =>
+                            i === idx ? { ...v, stock: Math.max(0, (v.stock || 0) - quantity) } : v
+                        );
+                        const updated = await this.dataService.updateProduct(productId, { variants: updatedVariants });
+                        if (updated) updatedProducts.push({ id: updated.id, variantName, variants: updated.variants });
+                        continue;
+                    }
+                }
 
                 const newStock = Math.max(0, (product.stock || 0) - quantity);
                 const updated = await this.dataService.updateProduct(productId, { stock: newStock });

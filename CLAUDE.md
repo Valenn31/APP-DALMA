@@ -39,7 +39,7 @@ api/           → Entry point serverless para Vercel
 
 **Rutas de la API:**
 - `GET/POST /api/products` y `PUT/DELETE /api/products/:id` — CRUD de productos
-- `POST /api/products/consume-stock` — descuenta stock al confirmar un pedido (público). Body: `{ items: [{productId, quantity}] }`. Clampea a 0, no rechaza si no hay stock.
+- `POST /api/products/consume-stock` — descuenta stock al confirmar un pedido (público). Body: `{ items: [{productId, quantity, variantName?}] }`. Si `variantName` está presente y la variante tiene `stock` propio, descuenta ese; si no, descuenta el stock global del producto. Clampea a 0.
 - `GET /api/sales` — lista ventas ordenadas por fecha desc (requiere admin)
 - `POST /api/sales` — crea venta (público — llamado desde el catálogo al confirmar pedido). El backend enriquece cada item con `unitCost` desde `Product.cost`.
 - `PUT /api/sales/:id` — edita venta, ajusta stock según diferencia de items/cantidades y agrega entrada al changelog (requiere admin)
@@ -80,7 +80,7 @@ FRONTEND_URL=             # para CORS en producción
 - Paso 2: tipo de entrega (Delivery +$300 / Retiro), dirección, método de pago
 - El pedido se envía como mensaje pre-armado a WhatsApp via `api.whatsapp.com/send`
 
-**Variantes de producto:** Si `product.variants.length > 0`, el botón "+" de la lista de productos abre el modal de detalle en lugar de agregar directo.
+**Variantes de producto:** Si `product.variants.length > 0`, el botón "+" de la lista de productos abre el modal de detalle en lugar de agregar directo. Cada variante puede tener `stock` propio (`null` = usa el stock global del producto). El badge de stock en el modal se actualiza al cambiar la variante seleccionada.
 
 ### Frontend — Panel admin (`admin.html`)
 

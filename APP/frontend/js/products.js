@@ -51,7 +51,14 @@ export class ProductManager {
     getByCategory(category) {
         return this.products
             .filter(p => p.category === category && p.active !== false)
-            .filter(p => this.config.stock?.trackStock ? p.stock > 0 : true)
+            .filter(p => {
+                if (!this.config.stock?.trackStock) return true;
+                if (p.variants?.length > 0) {
+                    const hasVariantStock = p.variants.some(v => v.stock !== null && v.stock !== undefined);
+                    if (hasVariantStock) return p.variants.some(v => (v.stock ?? 0) > 0);
+                }
+                return (p.stock ?? 0) > 0;
+            })
             .map(p => this.normalizeProduct(p));
     }
 
@@ -161,9 +168,14 @@ export class ProductManager {
      * @param {number} productId - ID del producto
      * @returns {number} - Cantidad en stock
      */
-    getStock(productId) {
+    getStock(productId, variantName = null) {
         const product = this.products.find(p => p.id === productId);
-        return product ? (product.stock || 0) : 0;
+        if (!product) return 0;
+        if (variantName && product.variants?.length > 0) {
+            const variant = product.variants.find(v => v.name === variantName);
+            if (variant && variant.stock !== null && variant.stock !== undefined) return variant.stock;
+        }
+        return product.stock ?? 0;
     }
 
     /**
@@ -225,9 +237,14 @@ export class ProductManager {
         return this.config.business?.maintenanceMode || false;
     }
 
-    updateLocalStock(productId, newStock) {
+    updateLocalStock(productId, newStock, variantName = null, newVariants = null) {
         const product = this.products.find(p => p.id === productId);
-        if (product) product.stock = newStock;
+        if (!product) return;
+        if (variantName && newVariants) {
+            product.variants = newVariants;
+        } else {
+            product.stock = newStock;
+        }
     }
 
     saveSale(saleData) {
@@ -247,7 +264,7 @@ export class ProductManager {
             });
             const data = await res.json();
             if (data.success && data.data) {
-                data.data.forEach(u => this.updateLocalStock(u.id, u.stock));
+                data.data.forEach(u => this.updateLocalStock(u.id, u.stock, u.variantName, u.variants));
             }
         } catch {}
     }

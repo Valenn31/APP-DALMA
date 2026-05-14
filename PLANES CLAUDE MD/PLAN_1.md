@@ -17,11 +17,16 @@
     - Stock 2–5 → badge naranja "Solo quedan X unidades"
     - Stock > 5 → sin badge
 
-### Por realizar
+- [x] Stock por variante: stock independiente por variante de producto
+    - Campo `stock` agregado al subdocumento `variants` en el modelo (`null` = usa stock global del producto)
+    - `consume-stock` descuenta el stock de la variante específica si tiene stock propio
+    - Validación del carrito y botón "+" usan el stock de la variante seleccionada
+    - Badge de stock en el modal se actualiza al cambiar la variante
+    - Formulario del admin expone campo "Stock" por variante junto a nombre y precio
 
-- [ ] Stock por variante: si el producto tiene variantes, poder asignarle stock independiente a cada una
-    - Requiere cambio en el modelo (variants debe tener campo `stock`)
-    - Requiere cambio en la validación del carrito (usar el stock de la variante en vez del producto)
+---
+
+## Plan 1 completado ✅
 
 ---
 

@@ -19,7 +19,7 @@ const productSchema = new mongoose.Schema({
     preparationTime: { type: Number, default: 0 },
     allergens: { type: [String], default: [] },
     variants: {
-        type: [{ name: { type: String, required: true }, price: { type: Number, default: null } }],
+        type: [{ name: { type: String, required: true }, price: { type: Number, default: null }, stock: { type: Number, default: null } }],
         default: []
     }
 }, { timestamps: true });

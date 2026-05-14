@@ -147,7 +147,7 @@ export class EventHandler {
             return;
         }
 
-        const available = this.productManager.getStock(productId);
+        const available = this.productManager.getStock(productId, variant?.name ?? null);
         const inCart = this.cartManager.getQuantityForProduct(productId, variant?.name ?? null);
         if (inCart >= available) {
             const msg = available === 1 ? '¡Es la última unidad!' : `Solo hay ${available} unidades disponibles`;
@@ -172,7 +172,7 @@ export class EventHandler {
     handleUpdateQuantity(productId, delta, variantName = null) {
         if (!productId || isNaN(productId) || !delta || isNaN(delta)) return;
         if (delta > 0) {
-            const available = this.productManager.getStock(productId);
+            const available = this.productManager.getStock(productId, variantName);
             const inCart = this.cartManager.getQuantityForProduct(productId, variantName);
             if (inCart >= available) {
                 this.modalManager.showToast(`Solo hay ${available} unidades disponibles`, 3000);
@@ -256,7 +256,7 @@ export class EventHandler {
         this.modalManager.showToast('¡Pedido enviado por WhatsApp!', 3000);
 
         const cartItems = this.cartManager.getCart();
-        const stockItems = cartItems.map(item => ({ productId: item.id, quantity: item.quantity }));
+        const stockItems = cartItems.map(item => ({ productId: item.id, quantity: item.quantity, variantName: item.selectedVariant?.name ?? null }));
         this.productManager.consumeStock(stockItems).then(() => {
             this.viewManager.refresh();
         });

@@ -368,11 +368,11 @@ export class ProductsSection {
         const list = document.getElementById('variantsList');
         if (list) {
             list.innerHTML = '';
-            (product.variants || []).forEach(v => this._addVariantRow(v.name, v.price));
+            (product.variants || []).forEach(v => this._addVariantRow(v.name, v.price, v.stock));
         }
     }
 
-    _addVariantRow(name = '', price = '') {
+    _addVariantRow(name = '', price = '', stock = null) {
         const list = document.getElementById('variantsList');
         if (!list) return;
         const row = document.createElement('div');
@@ -381,7 +381,9 @@ export class ProductsSection {
             <input type="text" placeholder="Nombre (ej: Negro)" value="${this._escapeHtml(name)}"
                 class="variant-name flex-1 px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-primary focus:border-primary">
             <input type="number" placeholder="Precio (vacío = base)" value="${price != null && price !== '' ? price : ''}" min="0" step="0.01"
-                class="variant-price w-40 px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-primary focus:border-primary">
+                class="variant-price w-28 px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-primary focus:border-primary">
+            <input type="number" placeholder="Stock" value="${stock !== null && stock !== undefined ? stock : ''}" min="0" step="1" title="Stock de esta variante"
+                class="variant-stock w-20 px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-primary focus:border-primary">
             <button type="button" class="remove-variant p-2 text-red-400 hover:text-red-600 transition-colors">
                 <i class="fas fa-times"></i>
             </button>
@@ -402,7 +404,12 @@ export class ProductsSection {
         document.querySelectorAll('.variant-row').forEach(row => {
             const vName = row.querySelector('.variant-name')?.value.trim();
             const vPrice = row.querySelector('.variant-price')?.value.trim();
-            if (vName) variants.push({ name: vName, price: vPrice !== '' ? parseFloat(vPrice) : null });
+            const vStock = row.querySelector('.variant-stock')?.value.trim();
+            if (vName) variants.push({
+                name: vName,
+                price: vPrice !== '' ? parseFloat(vPrice) : null,
+                stock: vStock !== '' ? parseInt(vStock) : null
+            });
         });
 
         const productData = {
