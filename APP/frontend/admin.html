@@ -134,6 +134,8 @@
                 position: relative !important;
                 transform: none !important;
                 width: 16rem !important;
+                height: 100% !important;
+                overflow-y: auto !important;
             }
         }
     </style>
@@ -216,10 +218,10 @@
     </div>
 
     <!-- Main Admin Panel -->
-    <div id="adminPanel" class="hidden min-h-screen bg-gray-50">
+    <div id="adminPanel" class="hidden h-screen flex flex-col bg-gray-50">
         
         <!-- Top Navigation Bar -->
-        <nav class="bg-white shadow-lg border-b border-gray-200">
+        <nav class="flex-shrink-0 z-40 bg-white shadow-lg border-b border-gray-200">
             <div class="px-4 sm:px-6 py-3 sm:py-4">
                 <div class="flex items-center justify-between">
                     <div class="flex items-center space-x-2 sm:space-x-4">
@@ -280,9 +282,9 @@
         <!-- Sidebar Overlay para móvil -->
         <div id="sidebarOverlay" class="sidebar-overlay lg:hidden"></div>
         
-        <div class="flex">
+        <div class="flex flex-1 min-h-0">
             <!-- Sidebar -->
-            <aside id="sidebar" class="w-64 bg-white shadow-lg min-h-screen lg:relative lg:block sidebar-mobile lg:sidebar-mobile-reset custom-scrollbar">
+            <aside id="sidebar" class="w-64 bg-white shadow-lg sidebar-mobile custom-scrollbar flex-shrink-0">
                 <div class="p-4 sm:p-6">
                     <!-- Cerrar botón para móvil -->
                     <div class="flex justify-between items-center mb-4 lg:hidden">
@@ -345,7 +347,7 @@
             </aside>
 
             <!-- Main Content -->
-            <main class="flex-1 p-3 sm:p-6 lg:ml-0">
+            <main class="flex-1 overflow-y-auto p-3 sm:p-6">
                 <div id="mainContent" class="fade-in max-w-full overflow-x-hidden">
                     <!-- Content will be loaded here dynamically -->
                 </div>
