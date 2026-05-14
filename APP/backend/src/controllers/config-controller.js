@@ -51,7 +51,12 @@ class ConfigController {
                 categories: config.categories,
                 currency: storeConfig.currencySymbol || '$',
                 maintenanceMode: config.business?.maintenanceMode || false,
-                deliveryCost: storeConfig.deliveryCost ?? 300
+                deliveryCost: storeConfig.deliveryCost ?? 300,
+                backgroundColor: storeConfig.backgroundColor || '#f2e9dc',
+                primaryColor: storeConfig.primaryColor || '#7d8c56',
+                secondaryColor: storeConfig.secondaryColor || '#4a3b2a',
+                logoUrl: storeConfig.logoUrl || '',
+                heroTitle: storeConfig.heroTitle || ''
             };
             
             res.json({

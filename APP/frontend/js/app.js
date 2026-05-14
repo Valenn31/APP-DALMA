@@ -56,8 +56,28 @@ class App {
      * Configura aspectos adicionales de la aplicación
      */
     setupApplication() {
+        this.applyBranding();
         this.setupErrorHandling();
         this.setupWindowEvents();
+    }
+
+    applyBranding() {
+        const store = this.productManager.getStoreConfig() || {};
+        const root = document.documentElement;
+        root.style.setProperty('--color-bg', store.backgroundColor || '#f2e9dc');
+        root.style.setProperty('--color-primary', store.primaryColor || '#7d8c56');
+        root.style.setProperty('--color-secondary', store.secondaryColor || '#4a3b2a');
+        if (store.name) {
+            document.title = store.name;
+            const brandNameEl = document.getElementById('catalog-brand-name');
+            if (brandNameEl) brandNameEl.textContent = store.name;
+            const cartBrandEl = document.getElementById('cart-brand-name');
+            if (cartBrandEl) cartBrandEl.textContent = store.name;
+        }
+        if (store.heroTitle) {
+            const heroTitleEl = document.getElementById('catalog-hero-title');
+            if (heroTitleEl) heroTitleEl.textContent = store.heroTitle;
+        }
     }
 
     /**
