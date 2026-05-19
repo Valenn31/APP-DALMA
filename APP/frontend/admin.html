@@ -7,12 +7,12 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        /* Personalización del tema */
-        .bg-primary { background-color: #7d8c56; }
-        .text-primary { color: #7d8c56; }
-        .border-primary { border-color: #7d8c56; }
-        .bg-chocolate { background-color: #4a3b2a; }
-        .text-chocolate { color: #4a3b2a; }
+        /* Personalización del tema — colores dinámicos vía CSS vars */
+        .bg-primary { background-color: var(--color-primary, #7d8c56); }
+        .text-primary { color: var(--color-primary, #7d8c56); }
+        .border-primary { border-color: var(--color-primary, #7d8c56); }
+        .bg-chocolate { background-color: var(--color-secondary, #4a3b2a); }
+        .text-chocolate { color: var(--color-secondary, #4a3b2a); }
         
         /* Animaciones personalizadas */
         .fade-in {
@@ -44,12 +44,12 @@
         
         /* Estilos responsive para el sidebar */
         .sidebar-item:hover {
-            background-color: rgba(125, 140, 86, 0.1);
+            background-color: color-mix(in srgb, var(--color-primary, #7d8c56) 10%, transparent);
         }
-        
+
         .sidebar-item.active {
-            background-color: rgba(125, 140, 86, 0.2);
-            border-right: 3px solid #7d8c56;
+            background-color: color-mix(in srgb, var(--color-primary, #7d8c56) 20%, transparent);
+            border-right: 3px solid var(--color-primary, #7d8c56);
         }
         
         /* Sidebar móvil overlay */
@@ -102,7 +102,7 @@
         /* Loader personalizado */
         .loader {
             border: 3px solid #f3f3f3;
-            border-top: 3px solid #7d8c56;
+            border-top: 3px solid var(--color-primary, #7d8c56);
             border-radius: 50%;
             width: 30px;
             height: 30px;
@@ -124,7 +124,7 @@
         }
         
         .custom-scrollbar::-webkit-scrollbar-thumb {
-            background: #7d8c56;
+            background: var(--color-primary, #7d8c56);
             border-radius: 2px;
         }
         

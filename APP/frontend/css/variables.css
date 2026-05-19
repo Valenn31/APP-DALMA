@@ -1,8 +1,11 @@
 :root {
-    --color-crema: #f2e9dc;
+    --color-bg: #f2e9dc;
+    --color-primary: #7d8c56;
+    --color-secondary: #4a3b2a;
+    --color-crema: var(--color-bg);
     --color-crema-oscura: #e8ddd0;
-    --color-chocolate: #48332c;
+    --color-chocolate: var(--color-secondary);
     --color-caramel: #c49a6c;
-    --color-verde: #7d8c56;
+    --color-verde: var(--color-primary);
     --color-blanco: #ffffff;
 }

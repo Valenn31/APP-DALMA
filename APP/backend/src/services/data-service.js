@@ -16,7 +16,12 @@ class DataService {
                 currency: 'ARS',
                 currencySymbol: '$',
                 minimumOrder: 0,
-                deliveryCost: 300
+                deliveryCost: 300,
+                backgroundColor: '#f2e9dc',
+                primaryColor: '#7d8c56',
+                secondaryColor: '#4a3b2a',
+                logoUrl: '',
+                heroTitle: '¿Qué vas a elegir hoy?'
             },
             categories: [
                 { id: 'chocolates', name: 'Chocolates', description: '', active: true, available: true, order: 0, image: 'assets/img/postres/categoria_chocolates.jpeg' },

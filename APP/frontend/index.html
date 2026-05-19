@@ -7,6 +7,27 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <link rel="stylesheet" href="css/styles.css">
+    <style>
+        /* Colores dinámicos — sobreescriben los valores Tailwind hardcodeados */
+        #floating-cart { background-color: var(--color-secondary, #48332c); }
+        #cart-count { background-color: var(--color-primary, #7d8c56); }
+        #product-detail-add-btn { background-color: var(--color-primary, #7d8c56); }
+
+        /* Color secundario — botones de acción del carrito */
+        button[data-action="goToCheckout"],
+        #toast { background-color: var(--color-secondary, #48332c); }
+
+        /* Color secundario — radios de entrega y pago seleccionados */
+        .peer:checked ~ div {
+            background-color: var(--color-secondary, #48332c) !important;
+            border-color: var(--color-secondary, #48332c) !important;
+        }
+
+        /* Color de fondo */
+        #products-view > div:first-child,
+        #cart-step-1 > div:last-child,
+        #cart-step-2 > div:last-child { background-color: var(--color-bg, #f2e9dc); }
+    </style>
 </head>
 <body class="min-h-screen">
 
@@ -34,8 +55,8 @@
             <div class="mx-auto w-20 h-20 mb-4 rounded-full bg-white shadow-md flex items-center justify-center ring-4 ring-[#e8ddd0]">
                 <i class="fa-solid fa-spoon text-3xl text-chocolate"></i>
             </div>
-            <p class="text-[10px] font-semibold tracking-[0.28em] text-chocolate/40 uppercase mb-2">Una cucharita más</p>
-            <h2 class="font-display text-[2rem] font-bold text-chocolate leading-tight">¿Qué vas a<br>elegir hoy?</h2>
+            <p id="catalog-brand-name" class="text-[10px] font-semibold tracking-[0.28em] text-chocolate/40 uppercase mb-2">Una cucharita más</p>
+            <h2 id="catalog-hero-title" class="font-display text-[2rem] font-bold text-chocolate leading-tight">¿Qué vas a<br>elegir hoy?</h2>
         </div>
 
         <div id="categories-container" class="flex flex-col gap-4 flex-1 overflow-y-auto no-scrollbar">
@@ -71,7 +92,7 @@
                     </button>
                     <div>
                         <h2 id="cart-title" class="font-display text-2xl font-bold text-chocolate leading-none">Tu pedido</h2>
-                        <p class="text-chocolate/40 text-xs mt-2 uppercase tracking-widest">Una cucharita más</p>
+                        <p id="cart-brand-name" class="text-chocolate/40 text-xs mt-2 uppercase tracking-widest">Una cucharita más</p>
                     </div>
                 </div>
                 <button data-action="toggleCart" class="bg-[#f2e9dc] p-3 rounded-2xl text-chocolate active:rotate-90 transition-transform cursor-pointer">

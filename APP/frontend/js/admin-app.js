@@ -165,8 +165,18 @@ class AdminApp {
         document.getElementById('loginScreen').classList.add('hidden');
         document.getElementById('adminPanel').classList.remove('hidden');
         document.getElementById('userDisplayName').textContent = appState.user.username;
+        this.applyBranding();
         const lastSection = localStorage.getItem('admin_last_section') || 'dashboard';
         this.navigateToSection(lastSection);
+    }
+
+    async applyBranding() {
+        const res = await this.api.fetchWithAuth('/config');
+        const store = res?.data?.store || {};
+        const root = document.documentElement;
+        root.style.setProperty('--color-primary', store.primaryColor || '#7d8c56');
+        root.style.setProperty('--color-secondary', store.secondaryColor || '#4a3b2a');
+        if (store.name) document.title = store.name + ' — Admin';
     }
 
     async navigateToSection(sectionName) {
